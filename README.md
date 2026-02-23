@@ -30,4 +30,5 @@ Sigue estos pasos para correr el proyecto localmente:
    cd nombre-del-proyecto
 
 *** Instalacion de dependencias tanto en back end y en front end
+```bash
 npm install
