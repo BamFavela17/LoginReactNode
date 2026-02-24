@@ -1,0 +1,22 @@
+# Extensiones de dependencias (NUNCA se suben, pesan mucho)
+node_modules/
+
+# Archivos de variables de entorno (¡MUY IMPORTANTE!)
+# Aquí es donde están tus contraseñas de la base de datos y el JWT_SECRET
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Sistema operativo y editores
+.DS_Store
+.vscode/
+.idea/
+dist/
+build/

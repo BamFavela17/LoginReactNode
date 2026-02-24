@@ -2,17 +2,17 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import authRoutes from './routes/auth.js';
+import authRoutes from './routes/authRoutes.js'; // Importamos tus rutas separadas
+import userRoutes from './routes/userRoutes.js';
 
 dotenv.config();
 const app = express();
 
-// Lista de orígenes permitidos. Añade la URL de tu frontend de producción aquí.
+// --- CONFIGURACIÓN DE SEGURIDAD Y MIDDLEWARES ---
 const allowedOrigins = [process.env.CLIENT_URL, "http://localhost:5173", "http://localhost:3000"];
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Permite peticiones sin origen (como Postman) o si el origen está en la lista blanca.
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
@@ -22,13 +22,14 @@ app.use(cors({
     credentials: true,
 }));
 
-app.use(express.json());
-app.use(cookieParser());
+app.use(express.json());       // Para leer el body en JSON
+app.use(cookieParser());       // Para leer las cookies del navegador
 
-app.use("/api/auth", authRoutes);
+// --- RUTAS ---
+app.use("/api/auth", authRoutes); // Aquí vive tu authController
+app.use("/api/users", userRoutes); // Aquí vive tu userController (CRUD)
 
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () =>{
-    console.log(`server is running on port ${PORT}`)
-} )
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+});
