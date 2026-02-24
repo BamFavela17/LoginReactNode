@@ -1,0 +1,670 @@
+/* ═══════════════════════════════════════════════════
+   UES GYM — Estilos Institucionales
+   Universidad Estatal de Sonora
+   Archivo: src/styles/ues-styles.css
+   ═══════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* ─── VARIABLES ─── */
+:root {
+  --brown:       #5C2D0E;
+  --brown-dark:  #3D1E09;
+  --brown-mid:   #7A3D16;
+  --gold:        #F5A623;
+  --gold-light:  #FFD07A;
+  --gold-dark:   #C17D0E;
+  --white:       #FFFFFF;
+  --off-white:   #FAF8F5;
+  --gray-light:  #F2EDE8;
+  --gray-mid:    #D5C9BF;
+  --gray-text:   #8A7060;
+  --text-dark:   #2A1505;
+  --success:     #2E9E5B;
+  --danger:      #D94040;
+  --sidebar-w:   260px;
+}
+
+/* ─── RESET BASE ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--off-white);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* ════════════════════════════════════
+   NAVBAR
+════════════════════════════════════ */
+.ues-navbar {
+  background: var(--brown-dark);
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.ues-navbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.ues-navbar__icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 12px rgba(245,166,35,0.35);
+}
+
+.ues-navbar__title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  color: var(--white);
+  line-height: 1;
+}
+
+.ues-navbar__sub {
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: block;
+}
+
+.ues-navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ues-navbar__user {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  font-weight: 400;
+}
+
+.ues-navbar__user span {
+  color: var(--gold-light);
+  font-weight: 600;
+}
+
+/* ─── Navbar Buttons ─── */
+.btn-nav {
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+}
+
+.btn-nav--outline {
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.8);
+}
+.btn-nav--outline:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.btn-nav--primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: var(--brown-dark);
+  box-shadow: 0 4px 14px rgba(245,166,35,0.3);
+}
+.btn-nav--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(245,166,35,0.45);
+}
+
+.btn-nav--danger {
+  background: rgba(217,64,64,0.15);
+  border: 1.5px solid rgba(217,64,64,0.3);
+  color: #F08080;
+}
+.btn-nav--danger:hover {
+  background: rgba(217,64,64,0.25);
+}
+
+/* ════════════════════════════════════
+   LOGIN PAGE
+════════════════════════════════════ */
+.ues-login-page {
+  min-height: calc(100vh - 64px);
+  background: var(--brown-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.ues-login-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 80%, rgba(245,166,35,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 70% at 80% 20%, rgba(92,45,14,0.5) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.ues-login-page::after {
+  content: 'UES';
+  position: absolute;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 40vw;
+  color: rgba(255,255,255,0.02);
+  pointer-events: none;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ues-card {
+  position: relative;
+  z-index: 2;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 24px;
+  padding: 48px 44px;
+  width: 420px;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+  animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.ues-card__header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.ues-card__icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin: 0 auto 20px;
+  box-shadow: 0 8px 24px rgba(245,166,35,0.4);
+}
+
+.ues-card__title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 0.04em;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+
+.ues-card__subtitle {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  font-weight: 300;
+}
+
+/* ─── Form fields (dark version for login) ─── */
+.ues-field {
+  margin-bottom: 20px;
+}
+
+.ues-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  margin-bottom: 8px;
+}
+
+.ues-field input,
+.ues-field select,
+.ues-field textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 13px 16px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  color: var(--white);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.ues-field input::placeholder { color: rgba(255,255,255,0.25); }
+
+.ues-field input:focus,
+.ues-field select:focus,
+.ues-field textarea:focus {
+  border-color: var(--gold);
+  background: rgba(245,166,35,0.06);
+  box-shadow: 0 0 0 3px rgba(245,166,35,0.12);
+}
+
+/* ─── Form fields (light version for forms) ─── */
+.ues-field--light label {
+  color: var(--brown);
+}
+
+.ues-field--light input,
+.ues-field--light select,
+.ues-field--light textarea {
+  background: var(--off-white);
+  border: 1px solid var(--gray-mid);
+  color: var(--text-dark);
+}
+
+.ues-field--light input::placeholder { color: var(--gray-text); }
+
+.ues-field--light input:focus,
+.ues-field--light select:focus,
+.ues-field--light textarea:focus {
+  border-color: var(--gold);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(245,166,35,0.12);
+}
+
+/* ─── Error message ─── */
+.ues-error {
+  background: rgba(217,64,64,0.1);
+  border: 1px solid rgba(217,64,64,0.25);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 13px;
+  color: #F08080;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ─── Buttons ─── */
+.btn-ues {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 17px;
+  letter-spacing: 0.1em;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.btn-ues--gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: var(--brown-dark);
+  box-shadow: 0 8px 24px rgba(245,166,35,0.3);
+}
+.btn-ues--gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(245,166,35,0.45);
+}
+
+.btn-ues--ghost {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+.btn-ues--ghost:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--white);
+}
+
+.btn-ues--brown {
+  background: var(--brown);
+  color: var(--white);
+  box-shadow: 0 4px 14px rgba(92,45,14,0.3);
+}
+.btn-ues--brown:hover {
+  background: var(--brown-mid);
+  transform: translateY(-1px);
+}
+
+/* ─── Link in card ─── */
+.ues-card__link {
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 8px;
+}
+.ues-card__link a {
+  color: var(--gold-light);
+  text-decoration: none;
+  font-weight: 600;
+}
+.ues-card__link a:hover { text-decoration: underline; }
+
+/* ════════════════════════════════════
+   HOME / WELCOME PAGE
+════════════════════════════════════ */
+.ues-home {
+  min-height: calc(100vh - 64px);
+  padding: 48px 32px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Not logged in state */
+.ues-home__gate {
+  min-height: calc(100vh - 64px);
+  background: var(--brown-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ues-gate-card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 24px;
+  padding: 48px 44px;
+  width: 420px;
+  text-align: center;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+  animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+.ues-gate-card__icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.ues-gate-card__title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 0.04em;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+
+.ues-gate-card__sub {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 32px;
+}
+
+/* Welcome state */
+.ues-welcome {
+  animation: fadeUp 0.5s ease forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ues-welcome__header {
+  margin-bottom: 36px;
+}
+
+.ues-welcome__greeting {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 44px;
+  letter-spacing: 0.04em;
+  color: var(--brown);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.ues-welcome__greeting span { color: var(--gold-dark); }
+
+.ues-welcome__sub {
+  font-size: 15px;
+  color: var(--gray-text);
+  font-weight: 300;
+}
+
+/* User info card */
+.ues-user-card {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 4px 20px rgba(92,45,14,0.08);
+  border: 1px solid var(--gray-light);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.ues-user-card__avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--brown-mid));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  color: var(--white);
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(245,166,35,0.3);
+}
+
+.ues-user-card__info strong {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+.ues-user-card__info span {
+  font-size: 13px;
+  color: var(--gray-text);
+}
+
+.ues-user-card__email {
+  margin-left: auto;
+  background: rgba(245,166,35,0.08);
+  border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--brown);
+  font-weight: 500;
+}
+
+/* Stats row on home */
+.ues-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.ues-stat {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(92,45,14,0.06);
+  border: 1px solid var(--gray-light);
+  border-top: 3px solid var(--brown);
+  transition: transform 0.2s;
+}
+.ues-stat:nth-child(2) { border-top-color: var(--gold); }
+.ues-stat:nth-child(3) { border-top-color: var(--success); }
+.ues-stat:hover { transform: translateY(-3px); }
+
+.ues-stat__icon { font-size: 24px; margin-bottom: 12px; }
+.ues-stat__value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  line-height: 1;
+  color: var(--text-dark);
+}
+.ues-stat__label {
+  font-size: 11px;
+  color: var(--gray-text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ════════════════════════════════════
+   REGISTER PAGE
+════════════════════════════════════ */
+.ues-register-page {
+  min-height: calc(100vh - 64px);
+  background: var(--brown-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 40px 20px;
+}
+
+.ues-register-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 60% at 80% 50%, rgba(245,166,35,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════
+   NOT FOUND PAGE
+════════════════════════════════════ */
+.ues-notfound {
+  min-height: calc(100vh - 64px);
+  background: var(--brown-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.ues-notfound__card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 24px;
+  padding: 56px 48px;
+  width: 420px;
+  animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+.ues-notfound__code {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 96px;
+  line-height: 1;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+.ues-notfound__title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 0.04em;
+  color: var(--white);
+  margin-bottom: 12px;
+}
+
+.ues-notfound__sub {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 32px;
+}
+
+/* ════════════════════════════════════
+   LOADING
+════════════════════════════════════ */
+.ues-loading {
+  min-height: 100vh;
+  background: var(--brown-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ues-loading__spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(245,166,35,0.2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.ues-loading__text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.4);
+}
+
+/* ════════════════════════════════════
+   CHIPS / BADGES
+════════════════════════════════════ */
+.chip {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-block;
+}
+.chip--active  { background: rgba(46,158,91,0.1);  color: var(--success); }
+.chip--expired { background: rgba(217,64,64,0.1);  color: var(--danger);  }
+.chip--pending { background: rgba(245,166,35,0.1); color: var(--gold-dark); }
+
+/* ════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════ */
+@media (max-width: 640px) {
+  .ues-card,
+  .ues-gate-card,
+  .ues-notfound__card { width: 100%; padding: 32px 24px; }
+  .ues-stats-row { grid-template-columns: 1fr; }
+  .ues-navbar { padding: 0 16px; }
+  .ues-home { padding: 24px 16px; }
+  .ues-user-card { flex-wrap: wrap; }
+  .ues-user-card__email { margin-left: 0; }
+}

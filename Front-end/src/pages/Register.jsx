@@ -1,12 +1,10 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
-// CRUCIAL: Configurar axios para manejar cookies y credenciales.
-// Esto asegura que la cookie de sesión establecida por el backend sea recibida.
 axios.defaults.withCredentials = true;
 
-const API_URL = "/api/auth"; // Ajusta el puerto si es necesario
+const API_URL = "/api/auth";
 
 export default function Register({ setUser }) {
   const [formData, setForm] = useState({
@@ -15,10 +13,9 @@ export default function Register({ setUser }) {
     password: "",
   });
 
-  const [error, setError] = useState(null); // Usamos null para el estado inicial sin error
-  const navigate = useNavigate(); // Corregido: 'navegate' a 'navigate'
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  // Controlador de cambios para campos de formulario
   const handleInputChange = (e) => {
     setForm({ 
         ...formData, 
@@ -28,99 +25,90 @@ export default function Register({ setUser }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); // Limpiar errores anteriores
+    setError(null);
 
     try {
-      // Petición POST para registrar un nuevo usuario.
-      const res = await axios.post(
-        `${API_URL}/register`,
-        formData
-      );
-      
-      // Si el registro es exitoso, el backend devuelve el usuario y establece la cookie.
+      const res = await axios.post(`${API_URL}/register`, formData);
       setUser(res.data.user);
-      navigate("/"); // Redirigir al inicio
+      navigate("/");
     } catch (err) {
       console.error("Error de registro:", err.response ? err.response.data : err.message);
-      
-      // Mostrar un mensaje de error más específico del backend (e.g., "User already exists")
       const errorMessage = err.response?.data?.message || "El registro falló. Verifica los datos e inténtalo de nuevo.";
       setError(errorMessage);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-      <form 
-        className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm transition-all duration-300 transform hover:shadow-3xl" 
-        onSubmit={handleSubmit}
-      >
-        <h2 className="text-3xl font-extrabold mb-8 text-center text-green-600">
-          Registrar Nueva Cuenta
-        </h2>
-        
-        {/* Visualización de Errores */}
+    <div className="ues-register-page">
+      <div className="ues-card">
+
+        {/* Encabezado */}
+        <div className="ues-card__header">
+          <div className="ues-card__icon">✏️</div>
+          <h1 className="ues-card__title">CREAR CUENTA</h1>
+          <p className="ues-card__subtitle">Regístrate en UES GYM</p>
+        </div>
+
+        {/* Error */}
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm font-medium animate-pulse">
-            {error}
+          <div className="ues-error">
+            ⚠️ {error}
           </div>
         )}
-        
-        <div className="space-y-5">
-            {/* Campo de Nombre */}
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="name">Nombre</label>
-                <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    placeholder="Tu nombre completo"
-                    required
-                    className="border border-gray-300 p-3 w-full rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                />
-            </div>
 
-            {/* Campo de Email */}
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">Email</label>
-                <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="ejemplo@correo.com"
-                    required
-                    className="border border-gray-300 p-3 w-full rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                />
-            </div>
+        {/* Formulario — lógica idéntica a la original */}
+        <form onSubmit={handleSubmit}>
 
-            {/* Campo de Contraseña */}
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="password">Contraseña</label>
-                <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    placeholder="Mínimo 6 caracteres"
-                    required
-                    className="border border-gray-300 p-3 w-full rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                />
-            </div>
+          <div className="ues-field">
+            <label htmlFor="name">Nombre Completo</label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              placeholder="Tu nombre completo"
+              required
+              value={formData.name}
+              onChange={handleInputChange}
+            />
+          </div>
 
-            {/* Botón de Enviar */}
-            <button 
-                type="submit"
-                className="bg-green-600 text-white font-semibold p-3 w-full rounded-lg shadow-md hover:bg-green-700 transition duration-200 transform hover:scale-[1.01]"
-            >
-                Registrar
-            </button>
-        </div>
-      </form>
+          <div className="ues-field">
+            <label htmlFor="email">Correo Electrónico</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="ejemplo@ues.mx"
+              required
+              value={formData.email}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="ues-field">
+            <label htmlFor="password">Contraseña</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Mínimo 6 caracteres"
+              required
+              value={formData.password}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <button type="submit" className="btn-ues btn-ues--gold">
+            REGISTRAR
+          </button>
+
+        </form>
+
+        <p className="ues-card__link">
+          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link>
+        </p>
+
+      </div>
     </div>
   );
 }
