@@ -3,8 +3,8 @@ import * as userModel from "../models/userModel.js";
 export const getAllUsers = async (req, res) => {
     try {
         // Seguridad básica: Solo el personal ve la lista
-        if (req.user.tipo_usuario !== 'Personal') {
-            return res.status(403).json({ message: "Acceso denegado. Solo personal." });
+        if (req.user.rol !== 'staff') {
+            return res.status(403).json({ message: "Acceso denegado. Solo staff puede ver esta lista." });
         }
         const users = await userModel.findAllUsers();
         res.json(users);
