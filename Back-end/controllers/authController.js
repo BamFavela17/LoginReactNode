@@ -4,9 +4,9 @@ import { generateToken, cookieOptions } from "../config/authConfig.js";
 
 export const register = async (req, res) => {
   // Ajustamos a los campos de tu tabla
-  const { name, email, password, datos, tipo_usuario } = req.body;
+  const { name, lastname, username, email, password } = req.body;
 
-  if (!name || !email || !password) {
+  if (!name || !lastname || !username || !email || !password) {
     return res.status(400).json({ message: "Campos faltantes" });
   }
 
@@ -18,17 +18,16 @@ export const register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Pasamos los datos adicionales al modelo
+    // Pasamos los datos adicionales al modelo (no usar 'rol' indefinido)
     const newUser = await userModel.createUser({
       name,
+      lastname,
+      username,
       email,
       password: hashedPassword,
-      datos,
-      tipo_usuario: tipo_usuario || 'Miembro Activo'
     });
 
-    // Usamos Id_User (como está en tu tabla)
-    const token = generateToken(newUser.id_user);
+    const token = generateToken(newUser.id_admin);
     res.cookie("token", token, cookieOptions);
 
     res.status(201).json({
@@ -46,20 +45,21 @@ export const login = async (req, res) => {
   try {
     const user = await userModel.findUserByEmail(email);
 
-    // Nota: en tu tabla la columna es 'password' (con minúscula o mayúscula según tu SQL)
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    // Comparar con la columna real en la BD: 'password_hash'
+    if (!user || !(await bcrypt.compare(password, user.password_hash))) {
       return res.status(400).json({ message: "Credenciales inválidas" });
     }
 
-    const token = generateToken(user.id_user);
+    const token = generateToken(user.id_admin);
     res.cookie("token", token, cookieOptions);
 
     res.json({
       user: {
-        id: user.id_user,
+        id: user.id_admin,
         name: user.name,
+        lastname: user.lastname,
+        username: user.username,
         email: user.email,
-        tipo: user.tipo_usuario
       },
       message: "Login exitoso"
     });
