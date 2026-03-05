@@ -22,7 +22,7 @@ export const protect = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
         // Busca al usuario en la BD usando el ID del token, pero no devuelvas la contraseña.
-        const user = await pool.query("SELECT id, name, email FROM users WHERE id = $1", [decoded.id]);
+        const user = await pool.query("SELECT id_admin, name, email, rol FROM admins WHERE id_admin = $1", [decoded.id]);
 
         if(user.rows.length === 0){
             return res.status(401).json({message: "Not authorized, user not found"});
