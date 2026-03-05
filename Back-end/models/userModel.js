@@ -6,19 +6,19 @@ export const findUserByEmail = async (email) => {
   return res.rows[0];
 };
 
-// Crear usuario (con todos los campos de tu BD)
-export const createUser = async ({ name, lastname, username, email, password }) => {
+// Crear usuario
+export const createUser = async ({ name, lastname, username, email, password, role }) => {
   const query = `
-    INSERT INTO admins (name, lastname, username, email, password_hash) 
-    VALUES ($1, $2, $3, $4, $5) 
-    RETURNING id_admin as id_admin, name, lastname, username, email`;
-  const res = await pool.query(query, [name, lastname, username, email, password]);
+    INSERT INTO admins (name, lastname, username, email, password_hash, role) 
+    VALUES ($1, $2, $3, $4, $5, $6) 
+    RETURNING id_admin, name, lastname, username, email, role`;
+  const res = await pool.query(query, [name, lastname, username, email, password, role || "staff"]);
   return res.rows[0];
 };
 
 // Obtener todos (CRUD Admin)
 export const findAllUsers = async () => {
-  const res = await pool.query("SELECT id_admin, name, lastname, username, email, rol FROM admins");
+  const res = await pool.query("SELECT id_admin, name, lastname, username, email, role FROM admins");
   return res.rows;
 };
 

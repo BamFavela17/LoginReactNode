@@ -9,8 +9,11 @@ const API_URL = "/api/auth";
 export default function Register({ setUser }) {
   const [formData, setForm] = useState({
     name: "",
+    lastname: "",
+    username: "",
     email: "",
     password: "",
+    role: "staff",
   });
 
   const [error, setError] = useState(null);
@@ -18,8 +21,8 @@ export default function Register({ setUser }) {
 
   const handleInputChange = (e) => {
     setForm({ 
-        ...formData, 
-        [e.target.name]: e.target.value 
+      ...formData, 
+      [e.target.name]: e.target.value 
     });
   };
 
@@ -42,32 +45,54 @@ export default function Register({ setUser }) {
     <div className="ues-register-page">
       <div className="ues-card">
 
-        {/* Encabezado */}
         <div className="ues-card__header">
           <div className="ues-card__icon">✏️</div>
           <h1 className="ues-card__title">CREAR CUENTA</h1>
           <p className="ues-card__subtitle">Regístrate en UES GYM</p>
         </div>
 
-        {/* Error */}
         {error && (
           <div className="ues-error">
             ⚠️ {error}
           </div>
         )}
 
-        {/* Formulario — lógica idéntica a la original */}
         <form onSubmit={handleSubmit}>
 
           <div className="ues-field">
-            <label htmlFor="name">Nombre Completo</label>
+            <label htmlFor="name">Nombre</label>
             <input
               id="name"
               name="name"
               type="text"
-              placeholder="Tu nombre completo"
+              placeholder="Tu nombre"
               required
               value={formData.name}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="ues-field">
+            <label htmlFor="lastname">Apellido</label>
+            <input
+              id="lastname"
+              name="lastname"
+              type="text"
+              placeholder="Tu apellido"
+              value={formData.lastname}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="ues-field">
+            <label htmlFor="username">Usuario</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              placeholder="Nombre de usuario único"
+              required
+              value={formData.username}
               onChange={handleInputChange}
             />
           </div>
@@ -96,6 +121,19 @@ export default function Register({ setUser }) {
               value={formData.password}
               onChange={handleInputChange}
             />
+          </div>
+
+          <div className="ues-field">
+            <label htmlFor="role">Rol</label>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleInputChange}
+            >
+              <option value="staff">Staff</option>
+              <option value="superadmin">Superadmin</option>
+            </select>
           </div>
 
           <button type="submit" className="btn-ues btn-ues--gold">

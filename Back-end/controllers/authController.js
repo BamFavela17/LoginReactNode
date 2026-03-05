@@ -3,8 +3,7 @@ import * as userModel from "../models/userModel.js";
 import { generateToken, cookieOptions } from "../config/authConfig.js";
 
 export const register = async (req, res) => {
-  // Ajustamos a los campos de tu tabla
-  const { name, lastname, username, email, password } = req.body;
+  const { name, lastname, username, email, password, role } = req.body;
 
   if (!name || !lastname || !username || !email || !password) {
     return res.status(400).json({ message: "Campos faltantes" });
@@ -18,13 +17,13 @@ export const register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Pasamos los datos adicionales al modelo (no usar 'rol' indefinido)
     const newUser = await userModel.createUser({
       name,
       lastname,
       username,
       email,
       password: hashedPassword,
+      role: role || "staff",
     });
 
     const token = generateToken(newUser.id_admin);
@@ -45,7 +44,6 @@ export const login = async (req, res) => {
   try {
     const user = await userModel.findUserByEmail(email);
 
-    // Comparar con la columna real en la BD: 'password_hash'
     if (!user || !(await bcrypt.compare(password, user.password_hash))) {
       return res.status(400).json({ message: "Credenciales inválidas" });
     }
@@ -60,6 +58,7 @@ export const login = async (req, res) => {
         lastname: user.lastname,
         username: user.username,
         email: user.email,
+        role: user.role,
       },
       message: "Login exitoso"
     });

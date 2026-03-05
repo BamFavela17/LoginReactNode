@@ -33,7 +33,7 @@ export default function Home({ user, error }) {
               <div className="ues-user-card__avatar">{initials}</div>
               <div className="ues-user-card__info">
                 <strong>{user.name}</strong>
-                <span>Estudiante UES</span>
+                <span>{user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "Estudiante UES"}</span>
               </div>
               <div className="ues-user-card__email">{user.email}</div>
             </div>
