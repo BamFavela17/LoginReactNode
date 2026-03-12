@@ -2,8 +2,11 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import authRoutes from './routes/authRoutes.js'; // Importamos tus rutas separadas
-import userRoutes from './routes/userRoutes.js';
+
+import authRoutes from './src/routes/auth.routes.js'; // Importamos tus rutas separadas
+import userRoutes from './src/routes/user.routes.js';
+import membersRoutes from './src/routes/members.route.js'
+import control from './src/routes/acess.route.js'
 
 dotenv.config();
 const app = express();
@@ -28,6 +31,8 @@ app.use(cookieParser());       // Para leer las cookies del navegador
 // --- RUTAS ---
 app.use("/api/auth", authRoutes); // Aquí vive tu authController
 app.use("/api/users", userRoutes); // Aquí vive tu userController (CRUD)
+app.use("/api/alumno", membersRoutes);
+app.use("/api/control", control);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

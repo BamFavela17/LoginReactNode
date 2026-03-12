@@ -1,0 +1,123 @@
+-- 1. Tabla de Administradores
+CREATE TABLE admins (
+    id_admin SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    lastname VARCHAR(100),
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL, 
+    role VARCHAR(20) DEFAULT 'staff' CHECK (role IN ('superadmin', 'staff')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. Tabla de Usuarios (Alumnos)
+CREATE TABLE users (
+    id_user SERIAL PRIMARY KEY,
+    matricula VARCHAR(12) UNIQUE NOT NULL CHECK (matricula ~ '^[0-9]{11,12}$'),
+    carrera VARCHAR(60) NOT NULL,
+    semestre VARCHAR(20) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL, 
+    fecha_registro DATE DEFAULT CURRENT_DATE,
+    tipo_usuario VARCHAR(50) NOT NULL CHECK (tipo_usuario IN ('Personal', 'Miembro Activo')),
+    status VARCHAR(20) DEFAULT 'activo' CHECK (status IN ('activo', 'inactivo')),
+    datos_fisicos TEXT,
+    historial TEXT
+);
+
+-- 3. Tabla de Asistencias (Entradas y Salidas)
+CREATE TABLE in_out (
+    id_asistencia SERIAL PRIMARY KEY,
+    id_user INT NOT NULL REFERENCES users(id_user) ON DELETE CASCADE,
+    hora_in TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    hora_out TIMESTAMP,
+    registrado_por INT REFERENCES admins(id_admin)
+);
+
+-- 4. Tabla de Membresías/Servicios
+CREATE TABLE services (
+    id_service SERIAL PRIMARY KEY,
+    id_user INT NOT NULL REFERENCES users(id_user) ON DELETE CASCADE,
+    nombre_plan VARCHAR(50) NOT NULL,
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE NOT NULL,
+    monto_pagado NUMERIC(10,2)
+);
+
+-- 5. Tabla de Anuncios y Promociones
+CREATE TABLE announcements (
+    id_anuncio SERIAL PRIMARY KEY,
+    titulo VARCHAR(100) NOT NULL,
+    descripcion TEXT NOT NULL,
+    tipo VARCHAR(50) CHECK (tipo IN ('Promocion', 'Membresias', 'Proyectos', 'Concursos', 'Info General')),
+    descuento_pct NUMERIC(5,2) DEFAULT 0,
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE NOT NULL,
+    imagen_url TEXT,
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+--- Automatizacion --
+
+-- Función para redactar el historial automáticamente
+CREATE OR REPLACE FUNCTION actualizar_historial_visitas()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.hora_out IS NOT NULL THEN
+        UPDATE users
+        SET historial = COALESCE(historial, 'HISTORIAL DE ACTIVIDAD:') || 
+                        CHR(10) || ' Visita: ' || TO_CHAR(NEW.hora_in, 'DD/MM/YYYY') || 
+                        ' | Duración: ' || TO_CHAR(NEW.hora_out - NEW.hora_in, 'HH24:MI:SS')
+        WHERE id_user = NEW.id_user;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger vinculado a la tabla in_out
+CREATE TRIGGER tr_registrar_visita_historial
+AFTER UPDATE ON in_out
+FOR EACH ROW
+EXECUTE FUNCTION actualizar_historial_visitas();
+
+--- Reportes ---
+CREATE OR REPLACE VIEW vista_monitoreo_gym AS
+SELECT 
+    u.matricula,
+    u.name AS nombre_alumno,
+    u.carrera,
+    a.hora_in AS entrada,
+    CASE 
+        WHEN a.hora_out IS NULL THEN 'DENTRO'
+        ELSE 'SALIO'
+    END AS estatus,
+    COALESCE(TO_CHAR(a.hora_out - a.hora_in, 'HH24:MI:SS'), 'En curso...') AS tiempo_transcurrido
+FROM users u
+JOIN in_out a ON u.id_user = a.id_user;
+
+-- seeds --
+
+-- Admins
+INSERT INTO admins (username, email, password_hash, role) 
+VALUES ('admin_juan', 'admin@gym.com', 'secure_hash', 'superadmin');
+
+-- Alumnos (Cumpliendo validación de matrícula de 11 dígitos)
+INSERT INTO users (matricula, carrera, semestre, name, email, password_hash, tipo_usuario, status) 
+VALUES 
+('22020220010', 'Sistemas', '6to', 'Carlos Pérez', 'carlos@u.edu', 'h1', 'Miembro Activo', 'activo'),
+('22020220020', 'Derecho', '4to', 'Ana García', 'ana@u.edu', 'h2', 'Miembro Activo', 'activo');
+
+-- Simular una entrada
+INSERT INTO in_out (id_user, registrado_por) VALUES (1, 1);
+INSERT INTO in_out (id_user, registrado_por) VALUES (2, 1);
+
+-- Simular una salida
+UPDATE in_out SET hora_out = CURRENT_TIMESTAMP WHERE id_user = 1;
+UPDATE in_out SET hora_out = CURRENT_TIMESTAMP WHERE id_user = 2;
+
+select * from vista_monitoreo_gym;
+
+select * from in_out;
+select * from admins;
+select * from users;
