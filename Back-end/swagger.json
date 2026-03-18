@@ -1,0 +1,725 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Gym Management API",
+    "description": "Sistema de control de acceso y gestión de usuarios para el gimnasio UES",
+    "version": "1.0.0"
+  },
+  "host": "localhost:5000",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "securityDefinitions": {
+    "apiKeyAuth": {
+      "type": "apiKey",
+      "in": "cookie",
+      "name": "token",
+      "description": "Token de sesión almacenado en cookies"
+    }
+  },
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Iniciar sesión",
+        "description": "Verifica credenciales y genera una HTTP-Only Cookie con el token JWT.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Credenciales de acceso",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "example": "admin@gym.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "12345"
+                }
+              },
+              "required": [
+                "email",
+                "password"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login exitoso",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user": {
+                  "$ref": "#/definitions/AdminResponse"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Email o contraseña incorrectos."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Obtener perfil actual",
+        "description": "Retorna la información del administrador autenticado basándose en el token de la cookie.",
+        "responses": {
+          "200": {
+            "description": "Información del usuario actual.",
+            "schema": {
+              "$ref": "#/definitions/AdminResponse"
+            }
+          },
+          "401": {
+            "description": "No autorizado / Token inválido."
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Cerrar sesión",
+        "description": "Invalida la cookie del navegador.",
+        "responses": {
+          "200": {
+            "description": "Sesión cerrada correctamente."
+          }
+        }
+      }
+    },
+    "/api/users/admins": {
+      "get": {
+        "tags": [
+          "Admins"
+        ],
+        "summary": "Listar todos los administradores",
+        "description": "Retorna un arreglo con todos los administradores registrados, ocultando sus hashes de contraseña.",
+        "responses": {
+          "200": {
+            "description": "Lista de administradores obtenida.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/AdminResponse"
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/users/admin/{id}": {
+      "get": {
+        "tags": [
+          "Admins"
+        ],
+        "summary": "Obtener administrador por ID",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID único del administrador"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Administrador encontrado.",
+            "schema": {
+              "$ref": "#/definitions/AdminResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Administrador no encontrado."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admins"
+        ],
+        "summary": "Eliminar administrador",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del administrador a eliminar"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado correctamente."
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "No se encontró el administrador."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Admins"
+        ],
+        "summary": "Actualizar datos de administrador",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del administrador a editar"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Campos a actualizar (opcionales)",
+            "schema": {
+              "$ref": "#/definitions/UpdateAdmin"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Administrador actualizado.",
+            "schema": {
+              "$ref": "#/definitions/AdminResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/users/admin": {
+      "post": {
+        "tags": [
+          "Admins"
+        ],
+        "summary": "Registrar nuevo administrador",
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Datos obligatorios para el registro",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddAdmin"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Administrador creado con éxito.",
+            "schema": {
+              "$ref": "#/definitions/AdminResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/alumno/users": {
+      "get": {
+        "tags": [
+          "Members"
+        ],
+        "summary": "Obtener todos los miembros",
+        "description": "Retorna una lista de todos los usuarios registrados sin sus contraseñas.",
+        "responses": {
+          "200": {
+            "description": "Lista de usuarios obtenida con éxito.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MemberResponse"
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/alumno/user/{id}": {
+      "get": {
+        "tags": [
+          "Members"
+        ],
+        "summary": "Obtener miembro por ID",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID único del usuario (id_user)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/MemberResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Usuario no encontrado"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Members"
+        ],
+        "summary": "Eliminar un miembro",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del usuario a eliminar"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Usuario eliminado correctamente"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Members"
+        ],
+        "summary": "Actualizar datos de un miembro",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID del usuario a actualizar"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateMember"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/MemberResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/alumno/user": {
+      "post": {
+        "tags": [
+          "Members"
+        ],
+        "summary": "Registrar un nuevo miembro",
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Datos del nuevo usuario",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddMember"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/MemberResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/control/in": {
+      "post": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Registrar entrada de alumno",
+        "description": "Busca al usuario por matrícula y crea un registro de entrada si no tiene uno activo.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Datos para el ingreso",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "matricula": {
+                  "type": "string",
+                  "example": "21920000"
+                },
+                "id_admin": {
+                  "type": "number",
+                  "example": 1
+                }
+              },
+              "required": [
+                "matricula",
+                "id_admin"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Entrada registrada correctamente.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Entrada registrada"
+                },
+                "data": {
+                  "$ref": "#/definitions/AttendanceRecord"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "El alumno ya tiene una entrada activa."
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Matrícula no encontrada."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/control/out": {
+      "put": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Registrar salida de alumno",
+        "description": "Cierra la sesión activa más reciente para el alumno indicado.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Matrícula del alumno que sale",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "matricula": {
+                  "type": "string",
+                  "example": "21920000"
+                }
+              },
+              "required": [
+                "matricula"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Salida registrada con éxito.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Salida registrada con éxito"
+                },
+                "data": {
+                  "$ref": "#/definitions/AttendanceRecord"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "No hay entrada activa para este alumno."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/control/monitor": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Monitoreo en vivo",
+        "description": "Obtiene la lista de personas que se encuentran actualmente en el gimnasio.",
+        "responses": {
+          "200": {
+            "description": "Lista de monitoreo obtenida.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "nombre": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "matricula": {
+                    "type": "string",
+                    "example": "21920000"
+                  },
+                  "hora_entrada": {
+                    "type": "string",
+                    "example": "2023-10-27T10:00:00Z"
+                  },
+                  "carrera": {
+                    "type": "string",
+                    "example": "Ingeniería"
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/control/history/{matricula}": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Historial de visitas por alumno",
+        "description": "",
+        "parameters": [
+          {
+            "name": "matricula",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Matrícula del alumno"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historial obtenido.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "John Doe"
+                },
+                "matricula": {
+                  "type": "string",
+                  "example": "21920000"
+                },
+                "historial": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "fecha": {
+                        "type": "string",
+                        "example": "2023-10-25"
+                      },
+                      "entrada": {
+                        "type": "string",
+                        "example": "08:00"
+                      },
+                      "salida": {
+                        "type": "string",
+                        "example": "10:00"
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "id_user": {
+          "type": "number",
+          "example": 1
+        },
+        "name": {
+          "type": "string",
+          "example": "Abraham"
+        },
+        "lastname": {
+          "type": "string",
+          "example": "Favela"
+        },
+        "email": {
+          "type": "string",
+          "example": "correo@ues.mx"
+        }
+      }
+    },
+    "LoginRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "example": "admin@gym.com"
+        },
+        "password": {
+          "type": "string",
+          "example": "12345"
+        }
+      }
+    }
+  }
+}
