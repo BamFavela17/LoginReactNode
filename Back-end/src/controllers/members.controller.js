@@ -5,9 +5,16 @@ const SALT_ROUNDS = 10;
 
 // Get all users
 export const getMember = async (req, res) => {
+  /* #swagger.tags = ['Members']
+      #swagger.summary = 'Obtener todos los miembros'
+      #swagger.description = 'Retorna una lista de todos los usuarios registrados sin sus contraseñas.'
+      #swagger.responses[200] = {
+            description: 'Lista de usuarios obtenida con éxito.',
+            schema: [{ $ref: '#/definitions/MemberResponse' }]
+      }
+  */
   try {
     const { rows } = await pool.query("SELECT * FROM users");
-    // Remove the hash before sending the response
     const sanitizedUsers = rows.map(({ password_hash, ...user }) => user);
     res.json(sanitizedUsers);
   } catch (err) {
@@ -18,6 +25,14 @@ export const getMember = async (req, res) => {
 
 // Get a single user by id_user
 export const getMemberById = async (req, res) => {
+  /* #swagger.tags = ['Members']
+      #swagger.summary = 'Obtener miembro por ID'
+      #swagger.parameters['id'] = { description: 'ID único del usuario (id_user)' }
+      #swagger.responses[200] = {
+            schema: { $ref: '#/definitions/MemberResponse' }
+      }
+      #swagger.responses[404] = { description: 'Usuario no encontrado' }
+  */
   try {
     const { id } = req.params;
     const { rows } = await pool.query("SELECT * FROM users WHERE id_user = $1", [id]);
@@ -36,6 +51,18 @@ export const getMemberById = async (req, res) => {
 
 // Create a new user
 export const createMember = async (req, res) => {
+  /* #swagger.tags = ['Members']
+      #swagger.summary = 'Registrar un nuevo miembro'
+      #swagger.parameters['body'] = {
+            in: 'body',
+            description: 'Datos del nuevo usuario',
+            required: true,
+            schema: { $ref: '#/definitions/AddMember' }
+      }
+      #swagger.responses[201] = {
+            schema: { $ref: '#/definitions/MemberResponse' }
+      }
+  */
   try {
     const { 
       matricula, carrera, semestre, name, email, 
@@ -54,13 +81,17 @@ export const createMember = async (req, res) => {
     res.status(201).json(user);
   } catch (err) {
     console.error("createUser error", err);
-    // Handle unique constraint or check constraint violations
     res.status(400).json({ message: "Error creating user", error: err.detail || err.message });
   }
 };
 
 // Delete user
 export const deleteMember = async (req, res) => {
+  /* #swagger.tags = ['Members']
+      #swagger.summary = 'Eliminar un miembro'
+      #swagger.parameters['id'] = { description: 'ID del usuario a eliminar' }
+      #swagger.responses[204] = { description: 'Usuario eliminado correctamente' }
+  */
   try {
     const { id } = req.params;
     const { rowCount } = await pool.query("DELETE FROM users WHERE id_user = $1", [id]);
@@ -77,6 +108,17 @@ export const deleteMember = async (req, res) => {
 
 // Update user
 export const updateMemeber = async (req, res) => {
+  /* #swagger.tags = ['Members']
+      #swagger.summary = 'Actualizar datos de un miembro'
+      #swagger.parameters['id'] = { description: 'ID del usuario a actualizar' }
+      #swagger.parameters['body'] = {
+            in: 'body',
+            schema: { $ref: '#/definitions/UpdateMember' }
+      }
+      #swagger.responses[200] = {
+            schema: { $ref: '#/definitions/MemberResponse' }
+      }
+  */
   try {
     const { id } = req.params;
     const { 
@@ -87,7 +129,6 @@ export const updateMemeber = async (req, res) => {
     let query = "UPDATE users SET matricula=$1, carrera=$2, semestre=$3, name=$4, email=$5, tipo_usuario=$6, status=$7, datos_fisicos=$8, historial=$9";
     let values = [matricula, carrera, semestre, name, email, tipo_usuario, status, datos_fisicos, historial];
 
-    // Only update password if a new one is provided
     if (password) {
       const hashed = await bcrypt.hash(password, SALT_ROUNDS);
       query += ", password_hash=$10 WHERE id_user=$11 RETURNING *";

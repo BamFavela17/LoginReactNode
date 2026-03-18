@@ -8,8 +8,6 @@ import {
 } from "../controllers/acess.controller.js";
 
 const router = Router();
-
-// Protegemos todas las rutas de asistencia
 router.use(protect);
 
 // Registrar entrada (Check-in)
@@ -20,10 +18,10 @@ router.post("/in", checkIn);
 // Cuerpo esperado: { "id_user": 1 }
 router.put("/out", checkOut);
 
-// Ver quién está en el gym ahora mismo (Monitoreo)
+// Ver quién está en el gym ahora mismo 
 router.get("/monitor", getLiveStatus);
 
-// Ver el historial redactado de un alumno específico
-router.get("/history/:id_user", getUserHistory);
+// Ver el historial de un alumno específico
+router.get("/history/:matricula", getUserHistory);
 
 export default router;

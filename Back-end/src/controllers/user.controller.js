@@ -5,9 +5,17 @@ const SALT_ROUNDS = 10;
 
 // Obtener todos los administradores
 export const getAdmins = async (req, res) => {
+  /* #swagger.tags = ['Admins']
+     #swagger.summary = 'Listar todos los administradores'
+     #swagger.description = 'Retorna un arreglo con todos los administradores registrados, ocultando sus hashes de contraseña.'
+     #swagger.responses[200] = {
+        description: 'Lista de administradores obtenida.',
+        schema: [{ $ref: '#/definitions/AdminResponse' }]
+     }
+  */
   try {
     const { rows } = await pool.query("SELECT * FROM admins");
-    rows.forEach((r) => delete r.password_hash); // Ocultar hash
+    rows.forEach((r) => delete r.password_hash); 
     res.json(rows);
   } catch (err) {
     console.error("getAdmins error", err);
@@ -17,6 +25,20 @@ export const getAdmins = async (req, res) => {
 
 // Obtener un administrador por ID
 export const getAdminById = async (req, res) => {
+  /* #swagger.tags = ['Admins']
+     #swagger.summary = 'Obtener administrador por ID'
+     #swagger.parameters['id'] = { 
+        in: 'path',
+        description: 'ID único del administrador',
+        required: true,
+        type: 'integer' 
+     }
+     #swagger.responses[200] = {
+        description: 'Administrador encontrado.',
+        schema: { $ref: '#/definitions/AdminResponse' }
+     }
+     #swagger.responses[404] = { description: 'Administrador no encontrado.' }
+  */
   try {
     const { id } = req.params;
     const { rows } = await pool.query("SELECT * FROM admins WHERE id_admin = $1", [id]);
@@ -36,10 +58,21 @@ export const getAdminById = async (req, res) => {
 
 // Crear un nuevo administrador
 export const createAdmin = async (req, res) => {
+  /* #swagger.tags = ['Admins']
+     #swagger.summary = 'Registrar nuevo administrador'
+     #swagger.parameters['body'] = {
+        in: 'body',
+        description: 'Datos obligatorios para el registro',
+        required: true,
+        schema: { $ref: '#/definitions/AddAdmin' }
+     }
+     #swagger.responses[201] = {
+        description: 'Administrador creado con éxito.',
+        schema: { $ref: '#/definitions/AdminResponse' }
+     }
+  */
   try {
     const { name, lastname, username, email, password, role } = req.body;
-
-    // Hashear la contraseña
     const hashed = await bcrypt.hash(password, SALT_ROUNDS);
 
     const { rows } = await pool.query(
@@ -58,12 +91,19 @@ export const createAdmin = async (req, res) => {
 
 // Eliminar un administrador
 export const deleteAdmin = async (req, res) => {
+  /* #swagger.tags = ['Admins']
+     #swagger.summary = 'Eliminar administrador'
+     #swagger.parameters['id'] = { 
+        in: 'path',
+        description: 'ID del administrador a eliminar',
+        required: true 
+     }
+     #swagger.responses[204] = { description: 'Eliminado correctamente.' }
+     #swagger.responses[404] = { description: 'No se encontró el administrador.' }
+  */
   try {
     const { id } = req.params;
-    const { rowCount } = await pool.query(
-      "DELETE FROM admins WHERE id_admin = $1",
-      [id]
-    );
+    const { rowCount } = await pool.query("DELETE FROM admins WHERE id_admin = $1", [id]);
 
     if (rowCount === 0) {
       return res.status(404).json({ message: "Admin not found" });
@@ -77,11 +117,27 @@ export const deleteAdmin = async (req, res) => {
 
 // Actualizar un administrador
 export const updateAdmin = async (req, res) => {
+  /* #swagger.tags = ['Admins']
+     #swagger.summary = 'Actualizar datos de administrador'
+     #swagger.parameters['id'] = { 
+        in: 'path',
+        description: 'ID del administrador a editar',
+        required: true 
+     }
+     #swagger.parameters['body'] = {
+        in: 'body',
+        description: 'Campos a actualizar (opcionales)',
+        schema: { $ref: '#/definitions/UpdateAdmin' }
+     }
+     #swagger.responses[200] = {
+        description: 'Administrador actualizado.',
+        schema: { $ref: '#/definitions/AdminResponse' }
+     }
+  */
   try {
     const { id } = req.params;
     const { name, lastname, username, email, password, role } = req.body;
 
-    // Buscamos el admin actual para manejar el hash opcional
     const currentAdmin = await pool.query("SELECT password_hash FROM admins WHERE id_admin = $1", [id]);
     if (currentAdmin.rows.length === 0) {
       return res.status(404).json({ message: "Admin not found" });
