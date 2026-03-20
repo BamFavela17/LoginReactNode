@@ -64,7 +64,14 @@ export const createAdmin = async (req, res) => {
         in: 'body',
         description: 'Datos obligatorios para el registro',
         required: true,
-        schema: { $ref: '#/definitions/AddAdmin' }
+        schema: { 
+          name: "new",
+          lastname: "user",
+          username: "nv_user",
+          email: "nuevouser@gym.com",
+          password: "12345",
+          role: "staff"
+        }
      }
      #swagger.responses[201] = {
         description: 'Administrador creado con éxito.',
@@ -127,7 +134,14 @@ export const updateAdmin = async (req, res) => {
      #swagger.parameters['body'] = {
         in: 'body',
         description: 'Campos a actualizar (opcionales)',
-        schema: { $ref: '#/definitions/UpdateAdmin' }
+        schema: { 
+          name: "Admin",
+          lastname: "pro",
+          username: "admin_juan",
+          email: "admin@gym.com",
+          password: "12345",
+          role: "superadmin"
+        }
      }
      #swagger.responses[200] = {
         description: 'Administrador actualizado.',

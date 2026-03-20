@@ -57,7 +57,17 @@ export const createMember = async (req, res) => {
             in: 'body',
             description: 'Datos del nuevo usuario',
             required: true,
-            schema: { $ref: '#/definitions/AddMember' }
+            schema: { 
+              "matricula": "11111111111",
+              "carrera": "Finanzas",
+              "semestre": "2do",
+              "name": "nuevo",
+              "email": "nuevo@ues.com",
+              "password": "pass123",
+              "tipo_usuario": "Miembro Activo",
+              "status": "",
+              "datos_fisicos": "es nuevo agrega descripcion o afecciones",
+            }
       }
       #swagger.responses[201] = {
             schema: { $ref: '#/definitions/MemberResponse' }
@@ -113,7 +123,17 @@ export const updateMemeber = async (req, res) => {
       #swagger.parameters['id'] = { description: 'ID del usuario a actualizar' }
       #swagger.parameters['body'] = {
             in: 'body',
-            schema: { $ref: '#/definitions/UpdateMember' }
+            schema: { 
+              "matricula": "",
+              "carrera": "",
+              "semestre": "",
+              "name": "",
+              "email": "",
+              "password": "",
+              "tipo_usuario": "",
+              "status": "",
+              "datos_fisicos": "",
+            }
       }
       #swagger.responses[200] = {
             schema: { $ref: '#/definitions/MemberResponse' }

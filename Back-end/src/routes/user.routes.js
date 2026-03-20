@@ -9,7 +9,7 @@ import {
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
-router.use(protect);
+//router.use(protect);
 
 router.get("/admins", getAdmins);
 router.get("/admin/:id", getAdminById);

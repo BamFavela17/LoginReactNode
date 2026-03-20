@@ -17,15 +17,17 @@ const doc = {
     }
   },
   definitions: {
-    User: {
-      id_user: 1,
-      name: "Abraham",
-      lastname: "Favela",
-      email: "correo@ues.mx"
-    },
     LoginRequest: {
       email: "admin@gym.com",
       password: "12345"
+    },
+    AdminRequest: {
+          name: "Admin",
+          lastname: "pro",
+          username: "admin_juan",
+          email: "admin@gym.com",
+          password: "12345",
+          role: "superadmin"
     }
   }
 };

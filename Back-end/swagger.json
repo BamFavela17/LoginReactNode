@@ -53,7 +53,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Login exitoso",
+            "description": "Login exitoso. La cookie \"token\" es enviada automáticamente.",
             "schema": {
               "type": "object",
               "properties": {
@@ -129,9 +129,6 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized"
-          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -161,9 +158,6 @@
               "$ref": "#/definitions/AdminResponse"
             }
           },
-          "401": {
-            "description": "Unauthorized"
-          },
           "404": {
             "description": "Administrador no encontrado."
           },
@@ -190,9 +184,6 @@
         "responses": {
           "204": {
             "description": "Eliminado correctamente."
-          },
-          "401": {
-            "description": "Unauthorized"
           },
           "404": {
             "description": "No se encontró el administrador."
@@ -221,7 +212,7 @@
             "in": "body",
             "description": "Campos a actualizar (opcionales)",
             "schema": {
-              "$ref": "#/definitions/UpdateAdmin"
+              "$ref": "#/definitions/AdminResponse"
             }
           }
         ],
@@ -231,9 +222,6 @@
             "schema": {
               "$ref": "#/definitions/AdminResponse"
             }
-          },
-          "401": {
-            "description": "Unauthorized"
           },
           "404": {
             "description": "Not Found"
@@ -258,7 +246,33 @@
             "description": "Datos obligatorios para el registro",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AddAdmin"
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "new"
+                },
+                "lastname": {
+                  "type": "string",
+                  "example": "user"
+                },
+                "username": {
+                  "type": "string",
+                  "example": "nv_user"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "nuevouser@gym.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "12345"
+                },
+                "role": {
+                  "type": "string",
+                  "example": "staff"
+                }
+              }
             }
           }
         ],
@@ -268,9 +282,6 @@
             "schema": {
               "$ref": "#/definitions/AdminResponse"
             }
-          },
-          "401": {
-            "description": "Unauthorized"
           },
           "500": {
             "description": "Internal Server Error"
@@ -389,7 +400,45 @@
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/UpdateMember"
+              "type": "object",
+              "properties": {
+                "matricula": {
+                  "type": "string",
+                  "example": ""
+                },
+                "carrera": {
+                  "type": "string",
+                  "example": ""
+                },
+                "semestre": {
+                  "type": "string",
+                  "example": ""
+                },
+                "name": {
+                  "type": "string",
+                  "example": ""
+                },
+                "email": {
+                  "type": "string",
+                  "example": ""
+                },
+                "password": {
+                  "type": "string",
+                  "example": ""
+                },
+                "tipo_usuario": {
+                  "type": "string",
+                  "example": ""
+                },
+                "status": {
+                  "type": "string",
+                  "example": ""
+                },
+                "datos_fisicos": {
+                  "type": "string",
+                  "example": ""
+                }
+              }
             }
           }
         ],
@@ -426,7 +475,45 @@
             "description": "Datos del nuevo usuario",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/AddMember"
+              "type": "object",
+              "properties": {
+                "matricula": {
+                  "type": "string",
+                  "example": "11111111111"
+                },
+                "carrera": {
+                  "type": "string",
+                  "example": "Finanzas"
+                },
+                "semestre": {
+                  "type": "string",
+                  "example": "2do"
+                },
+                "name": {
+                  "type": "string",
+                  "example": "nuevo"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "nuevo@ues.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "pass123"
+                },
+                "tipo_usuario": {
+                  "type": "string",
+                  "example": "Miembro Activo"
+                },
+                "status": {
+                  "type": "string",
+                  "example": ""
+                },
+                "datos_fisicos": {
+                  "type": "string",
+                  "example": "es nuevo agrega descripcion o afecciones"
+                }
+              }
             }
           }
         ],
@@ -687,27 +774,6 @@
     }
   },
   "definitions": {
-    "User": {
-      "type": "object",
-      "properties": {
-        "id_user": {
-          "type": "number",
-          "example": 1
-        },
-        "name": {
-          "type": "string",
-          "example": "Abraham"
-        },
-        "lastname": {
-          "type": "string",
-          "example": "Favela"
-        },
-        "email": {
-          "type": "string",
-          "example": "correo@ues.mx"
-        }
-      }
-    },
     "LoginRequest": {
       "type": "object",
       "properties": {
@@ -718,6 +784,35 @@
         "password": {
           "type": "string",
           "example": "12345"
+        }
+      }
+    },
+    "AdminRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "Admin"
+        },
+        "lastname": {
+          "type": "string",
+          "example": "pro"
+        },
+        "username": {
+          "type": "string",
+          "example": "admin_juan"
+        },
+        "email": {
+          "type": "string",
+          "example": "admin@gym.com"
+        },
+        "password": {
+          "type": "string",
+          "example": "12345"
+        },
+        "role": {
+          "type": "string",
+          "example": "superadmin"
         }
       }
     }

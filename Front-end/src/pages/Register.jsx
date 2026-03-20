@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 
 axios.defaults.withCredentials = true;
 
-const API_URL = "/api/auth";
+const API_URL = "/api/users";
 
 export default function Register({ setUser }) {
   const [formData, setForm] = useState({
@@ -31,7 +31,7 @@ export default function Register({ setUser }) {
     setError(null);
 
     try {
-      const res = await axios.post(`${API_URL}/register`, formData);
+      const res = await axios.post(`${API_URL}/admin`, formData);
       setUser(res.data.user);
       navigate("/");
     } catch (err) {
