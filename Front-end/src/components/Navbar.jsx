@@ -1,14 +1,13 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-// Importamos un ícono para añadir un toque visual moderno
-import { LogOut, LogIn, UserPlus, Grid } from 'lucide-react'; // Necesitarás instalar 'lucide-react' o usar otro set de iconos (ej: react-icons)
+// Usamos iconos que denoten academia y deporte
+import { LogOut, LogIn, UserPlus, Dumbbell, ShieldCheck, GraduationCap } from 'lucide-react';
 
 export const Navbar = ({ user, setUser }) => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    // Manejo de errores básico para el logout
     try {
       await axios.post("http://localhost:5000/api/auth/logout");
     } catch (error) {
@@ -19,52 +18,74 @@ export const Navbar = ({ user, setUser }) => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-gray-900 shadow-xl transition-all duration-300">
+    <nav className="sticky top-0 z-50 bg-white border-b-4 border-[#800020] shadow-md">
+      {/* Franja superior delgada en color Oro (Identidad UES) */}
+      <div className="h-1.5 w-full bg-[#D4AF37]"></div>
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo/Nombre del Sistema */}
+        <div className="flex justify-between items-center h-20">
+          
+          {/* Logo Identidad UES Sonora */}
           <Link
             to="/"
-            className="flex items-center space-x-2 text-xl font-extrabold text-indigo-400 hover:text-indigo-300 transition-colors duration-200 tracking-wider"
+            className="flex items-center space-x-3 group"
           >
-            <Grid className="w-6 h-6" /> {/* Ícono moderno */}
-            <span>Systems</span>
+            <div className="relative">
+              <div className="bg-[#800020] p-2.5 rounded-br-2xl rounded-tl-2xl transform group-hover:scale-105 transition-transform duration-300 shadow-md">
+                <Dumbbell className="w-7 h-7 text-[#D4AF37]" />
+              </div>
+            </div>
+            
+            <div className="flex flex-col leading-none">
+              <span className="text-2xl font-black text-[#800020] tracking-tighter uppercase">
+                GYM<span className="text-[#D4AF37]">UES</span>
+              </span>
+              <span className="text-[9px] text-gray-500 font-bold tracking-widest uppercase">
+                Estado de Sonora
+              </span>
+            </div>
           </Link>
 
           {/* Enlaces de Navegación */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-6">
             {user ? (
-              // Vista de Usuario Autenticado
-              <div className="flex items-center space-x-4">
-                <span className="text-gray-300 text-sm font-medium hidden sm:inline">
-                  Usuario: {user.name || 'Undifined'}
-                </span>
+              <div className="flex items-center space-x-6">
+                {/* Badge de Alumno/Berrendo */}
+                <div className="hidden lg:flex items-center space-x-3 bg-gray-50 border border-gray-200 px-4 py-2 rounded-lg">
+                  <div className="bg-[#D4AF37] p-1 rounded-full">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#800020]" />
+                  </div>
+                  <div className="flex flex-col ">
+                    <span className="text-[10px] text-gray-400 font-black uppercase">Comunidad UES</span>
+                    <span className="text-[#800020] text-xs font-black uppercase tracking-wide">
+                      {user.name || 'Berrendo'}
+                    </span>
+                  </div>
+                </div>
+
                 <button
                   onClick={handleLogout}
-                  className="flex items-center space-x-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                  aria-label="Cerrar sesión"
+                  className="flex items-center space-x-2 text-gray-500 hover:text-[#800020] font-bold uppercase text-xs transition-all duration-200 group"
                 >
-                  <LogOut className="w-5 h-5" />
-                  <span>Logout</span>
+                  <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                  <span className="hidden sm:inline">Cerrar Sesión</span>
                 </button>
               </div>
             ) : (
-              // Vista de Usuario No Autenticado
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-5">
                 <Link
                   to="/login"
-                  className="flex items-center space-x-1 p-2 text-gray-300 hover:text-indigo-400 transition-colors duration-200 rounded-md hover:bg-gray-800"
+                  className="text-[#800020] hover:text-[#D4AF37] font-black uppercase text-xs tracking-widest transition-colors border-b-2 border-transparent hover:border-[#D4AF37]"
                 >
-                  <LogIn className="w-5 h-5" />
-                  <span className="font-medium">Login</span>
+                  Login
                 </Link>
 
                 <Link
                   to="/register"
-                  className="flex items-center space-x-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50"
+                  className="bg-[#800020] hover:bg-[#600018] text-white font-black uppercase text-xs px-6 py-3 rounded-md transition-all duration-300 shadow-lg flex items-center space-x-2"
                 >
-                  <UserPlus className="w-5 h-5" />
-                  <span>Register</span>
+                  <UserPlus className="w-4 h-4 text-[#D4AF37]" />
+                  <span>Registrarse</span>
                 </Link>
               </div>
             )}

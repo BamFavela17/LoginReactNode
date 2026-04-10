@@ -212,7 +212,33 @@
             "in": "body",
             "description": "Campos a actualizar (opcionales)",
             "schema": {
-              "$ref": "#/definitions/AdminResponse"
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "Admin"
+                },
+                "lastname": {
+                  "type": "string",
+                  "example": "pro"
+                },
+                "username": {
+                  "type": "string",
+                  "example": "admin_juan"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "admin@gym.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "12345"
+                },
+                "role": {
+                  "type": "string",
+                  "example": "superadmin"
+                }
+              }
             }
           }
         ],
