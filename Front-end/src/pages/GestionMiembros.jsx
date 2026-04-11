@@ -357,9 +357,9 @@ export default function GestionMiembros() {
                       className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-[#D4AF37] focus:bg-white transition-all"
                     >
                       <option value="Miembro Activo">Miembro Activo</option>
-                      <option value="personal">Personal</option>
-                      <option value="ex-miembro">Ex-miembro</option>
-                      <option value="alumno">Alumno</option>
+                      <option value="Personal">Personal</option>
+                      <option value="Ex-miembro">Ex-miembro</option>
+                      <option value="Alumno">Alumno</option>
                     </select>
                   </div>
                   <div>
