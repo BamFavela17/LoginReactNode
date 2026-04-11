@@ -6,21 +6,21 @@ CREATE TABLE admins (
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL, 
-    role VARCHAR(20) DEFAULT 'staff' CHECK (role IN ('superadmin', 'staff')),
+    role VARCHAR(20) DEFAULT 'staff' CHECK (role IN ('superadmin', 'admin', 'entrenador', 'recepcionista', 'staff')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 2. Tabla de Usuarios (Alumnos)
 CREATE TABLE users (
     id_user SERIAL PRIMARY KEY,
-    matricula VARCHAR(12) UNIQUE NOT NULL CHECK (matricula ~ '^[0-9]{11,12}$'),
+    matricula VARCHAR(12) UNIQUE NOT NULL CHECK (matricula ~ '^[0-9]{8,12}$'),
     carrera VARCHAR(60) NOT NULL,
     semestre VARCHAR(20) NOT NULL,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL, 
     fecha_registro DATE DEFAULT CURRENT_DATE,
-    tipo_usuario VARCHAR(50) NOT NULL CHECK (tipo_usuario IN ('Personal', 'Miembro Activo')),
+    tipo_usuario VARCHAR(50) NOT NULL CHECK (tipo_usuario IN ('Personal', 'Miembro Activo', 'Ex-miembro', 'Alumno' )),
     status VARCHAR(20) DEFAULT 'activo' CHECK (status IN ('activo', 'inactivo')),
     datos_fisicos TEXT,
     historial TEXT

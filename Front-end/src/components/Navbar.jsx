@@ -17,13 +17,17 @@ export const Navbar = ({ user, setUser }) => {
     navigate("/");
   };
 
+  const role = (user?.role || user?.tipo_usuario || "").toString().toLowerCase();
+  const isAdmin = ["admin", "administrador", "superadmin", "administrator"].includes(role);
+  const isStaff = role === "staff";
+
   return (
     <nav className="sticky top-0 z-50 bg-white border-b-4 border-[#800020] shadow-md">
       {/* Franja superior delgada en color Oro (Identidad UES) */}
       <div className="h-1.5 w-full bg-[#D4AF37]"></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-around items-center h-20">
           
           {/* Logo Identidad UES Sonora */}
           <Link

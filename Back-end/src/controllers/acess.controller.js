@@ -164,3 +164,189 @@ export const getUserHistory = async (req, res) => {
     res.status(500).json({ message: "Error al obtener historial" });
   }
 };
+
+// 5. OBTENER HISTORIAL DE HOY
+export const getTodayHistory = async (req, res) => {
+  /* #swagger.tags = ['Attendance']
+     #swagger.summary = 'Historial de ingresos de hoy'
+     #swagger.description = 'Obtiene todos los registros de entrada del día actual'
+  */
+  try {
+    const { rows } = await pool.query(`
+      SELECT 
+        u.name as nombre_alumno,
+        u.matricula,
+        u.carrera,
+        i.hora_in as entrada,
+        i.hora_out as salida,
+        CASE 
+          WHEN i.hora_out IS NULL THEN 'DENTRO'
+          ELSE 'FINALIZADO'
+        END as estatus,
+        COALESCE(TO_CHAR(i.hora_out - i.hora_in, 'HH24:MI:SS'), 'En curso') as tiempo_transcurrido
+      FROM in_out i
+      JOIN users u ON i.id_user = u.id_user
+      WHERE DATE(i.hora_in) = CURRENT_DATE
+      ORDER BY i.hora_in DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error("getTodayHistory error", err);
+    res.status(500).json({ message: "Error al obtener historial de hoy" });
+  }
+};
+
+// 6. OBTENER HISTORIAL DE LA SEMANA
+export const getWeekHistory = async (req, res) => {
+  /* #swagger.tags = ['Attendance']
+     #swagger.summary = 'Historial de ingresos de la última semana'
+     #swagger.description = 'Obtiene todos los registros de entrada de los últimos 7 días'
+  */
+  try {
+    const { rows } = await pool.query(`
+      SELECT 
+        u.name as nombre_alumno,
+        u.matricula,
+        u.carrera,
+        i.hora_in as entrada,
+        i.hora_out as salida,
+        CASE 
+          WHEN i.hora_out IS NULL THEN 'DENTRO'
+          ELSE 'FINALIZADO'
+        END as estatus,
+        COALESCE(TO_CHAR(i.hora_out - i.hora_in, 'HH24:MI:SS'), 'En curso') as tiempo_transcurrido
+      FROM in_out i
+      JOIN users u ON i.id_user = u.id_user
+      WHERE i.hora_in >= CURRENT_DATE - INTERVAL '7 days'
+      ORDER BY i.hora_in DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error("getWeekHistory error", err);
+    res.status(500).json({ message: "Error al obtener historial de la semana" });
+  }
+};
+
+// 7. OBTENER HISTORIAL POR MES
+export const getMonthHistory = async (req, res) => {
+  /* #swagger.tags = ['Attendance']
+     #swagger.summary = 'Historial de ingresos por mes'
+     #swagger.parameters['yearMonth'] = { 
+        in: 'path', 
+        description: 'Año y mes en formato YYYY-MM (ej: 2024-01)' 
+     }
+  */
+  try {
+    const { yearMonth } = req.params;
+    const [year, month] = yearMonth.split('-');
+    
+    const { rows } = await pool.query(`
+      SELECT 
+        u.name as nombre_alumno,
+        u.matricula,
+        u.carrera,
+        i.hora_in as entrada,
+        i.hora_out as salida,
+        CASE 
+          WHEN i.hora_out IS NULL THEN 'DENTRO'
+          ELSE 'FINALIZADO'
+        END as estatus,
+        COALESCE(TO_CHAR(i.hora_out - i.hora_in, 'HH24:MI:SS'), 'En curso') as tiempo_transcurrido
+      FROM in_out i
+      JOIN users u ON i.id_user = u.id_user
+      WHERE EXTRACT(YEAR FROM i.hora_in) = $1 
+        AND EXTRACT(MONTH FROM i.hora_in) = $2
+      ORDER BY i.hora_in DESC
+    `, [year, month]);
+    
+    res.json(rows);
+  } catch (err) {
+    console.error("getMonthHistory error", err);
+    res.status(500).json({ message: "Error al obtener historial del mes" });
+  }
+};
+
+// 8. OBTENER TODOS LOS REGISTROS HISTÓRICOS
+export const getAllHistory = async (req, res) => {
+  /* #swagger.tags = ['Attendance']
+     #swagger.summary = 'Todos los registros históricos'
+     #swagger.description = 'Obtiene todos los registros de entrada de la base de datos'
+  */
+  try {
+    const { rows } = await pool.query(`
+      SELECT 
+        u.name as nombre_alumno,
+        u.matricula,
+        u.carrera,
+        i.hora_in as entrada,
+        i.hora_out as salida,
+        CASE 
+          WHEN i.hora_out IS NULL THEN 'DENTRO'
+          ELSE 'FINALIZADO'
+        END as estatus,
+        COALESCE(TO_CHAR(i.hora_out - i.hora_in, 'HH24:MI:SS'), 'En curso') as tiempo_transcurrido
+      FROM in_out i
+      JOIN users u ON i.id_user = u.id_user
+      ORDER BY i.hora_in DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error("getAllHistory error", err);
+    res.status(500).json({ message: "Error al obtener historial completo" });
+  }
+};
+
+// 9. OBTENER MESES DISPONIBLES CON REGISTROS
+export const getAvailableMonths = async (req, res) => {
+  /* #swagger.tags = ['Attendance']
+     #swagger.summary = 'Meses con registros disponibles'
+     #swagger.description = 'Obtiene la lista de meses que tienen registros en la base de datos'
+  */
+  try {
+    const { rows } = await pool.query(`
+      SELECT DISTINCT 
+        TO_CHAR(hora_in, 'YYYY-MM') as mes,
+        TO_CHAR(hora_in, 'Month YYYY') as nombre_mes
+      FROM in_out
+      ORDER BY mes DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error("getAvailableMonths error", err);
+    res.status(500).json({ message: "Error al obtener meses disponibles" });
+  }
+};
+
+// 10. OBTENER ESTADÍSTICAS POR RANGO DE FECHAS
+export const getStatsByDateRange = async (req, res) => {
+  /* #swagger.tags = ['Attendance']
+     #swagger.summary = 'Estadísticas por rango de fechas'
+     #swagger.parameters['startDate'] = { in: 'query', description: 'Fecha inicio (YYYY-MM-DD)' }
+     #swagger.parameters['endDate'] = { in: 'query', description: 'Fecha fin (YYYY-MM-DD)' }
+  */
+  try {
+    const { startDate, endDate } = req.query;
+    let query = `
+      SELECT 
+        DATE(i.hora_in) as fecha,
+        COUNT(*) as total_entradas,
+        COUNT(CASE WHEN i.hora_out IS NOT NULL THEN 1 END) as total_salidas,
+        EXTRACT(HOUR FROM i.hora_in) as hora
+      FROM in_out i
+    `;
+    
+    const params = [];
+    if (startDate && endDate) {
+      query += ` WHERE DATE(i.hora_in) BETWEEN $1 AND $2`;
+      params.push(startDate, endDate);
+    }
+    
+    query += ` GROUP BY DATE(i.hora_in), EXTRACT(HOUR FROM i.hora_in) ORDER BY fecha DESC`;
+    
+    const { rows } = await pool.query(query, params);
+    res.json(rows);
+  } catch (err) {
+    console.error("getStatsByDateRange error", err);
+    res.status(500).json({ message: "Error al obtener estadísticas" });
+  }
+};

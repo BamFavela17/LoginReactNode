@@ -9,6 +9,9 @@ import {Navbar} from "./components/Navbar";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import GestionMiembros from "./pages/GestionMiembros";
+import GestionStaff from "./pages/GestionStaff";
+import { AccessControl } from "./pages/AccesControl";
 import axios from "axios";
 import NoFound from "./components/notFound";
 
@@ -46,6 +49,11 @@ if(loading){
           <Route path="/" element={<Home user={user} error={error}/>} />
           <Route path="/login" element={user ? <Navigate to="/" /> : <Login setUser={setUser} />} />
           <Route path="/register" element={user ? <Navigate to="/" /> : <Register setUser={setUser} />} />
+          <Route path="/access-control" element={user ? <AccessControl adminUser={user} /> : <Navigate to="/login" />} />
+          <Route path="/members" element={user ? <GestionMiembros /> : <Navigate to="/login" />} />
+          <Route path="/gestion-miembros" element={user ? <GestionMiembros /> : <Navigate to="/login" />} />
+          <Route path="/employees" element={user ? <GestionStaff /> : <Navigate to="/login" />} />
+          <Route path="/gestion-staff" element={user ? <GestionStaff /> : <Navigate to="/login" />} />
           <Route path="*" element={<NoFound />}/>
         </Routes>
       </Router>
