@@ -370,8 +370,8 @@ export default function GestionMiembros() {
                       onChange={handleChange}
                       className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-[#D4AF37] focus:bg-white transition-all"
                     >
-                      <option>Activo</option>
-                      <option>Inactivo</option>
+                      <option value="activo">Activo</option>
+                      <option value="inactivo">Inactivo</option>
                     </select>
                   </div>
                 </div>

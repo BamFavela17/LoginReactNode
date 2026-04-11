@@ -797,6 +797,149 @@
           }
         }
       }
+    },
+    "/api/control/history/today": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Historial de ingresos de hoy",
+        "description": "Obtiene todos los registros de entrada del día actual",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/control/history/week": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Historial de ingresos de la última semana",
+        "description": "Obtiene todos los registros de entrada de los últimos 7 días",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/control/history/month/{yearMonth}": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Historial de ingresos por mes",
+        "description": "",
+        "parameters": [
+          {
+            "name": "yearMonth",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Año y mes en formato YYYY-MM (ej: 2024-01)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/control/all-history": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Todos los registros históricos",
+        "description": "Obtiene todos los registros de entrada de la base de datos",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/control/available-months": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Meses con registros disponibles",
+        "description": "Obtiene la lista de meses que tienen registros en la base de datos",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/control/stats/range": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Estadísticas por rango de fechas",
+        "description": "",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Fecha inicio (YYYY-MM-DD)",
+            "type": "string"
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "Fecha fin (YYYY-MM-DD)",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
     }
   },
   "definitions": {

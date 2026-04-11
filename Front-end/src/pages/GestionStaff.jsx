@@ -161,7 +161,7 @@ export default function GestionStaff() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-[0.95fr_0.55fr] gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-[0.95fr_0.85fr] gap-8">
           <section className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white rounded-xl p-6 shadow-sm border border-gray-100 min-w-0">
               <div className="flex items-center gap-3 text-gray-500 w-full min-w-0">
