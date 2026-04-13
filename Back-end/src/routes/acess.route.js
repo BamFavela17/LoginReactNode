@@ -31,9 +31,6 @@ router.get("/monitor", getLiveStatus);
 // Ver el historial del alumno autenticado
 router.get("/history/me", getMyHistory);
 
-// Ver el historial de un alumno específico por matrícula
-router.get("/history/:matricula", getUserHistory);
-
 // ==================== NUEVAS RUTAS PARA MONITOREO HISTÓRICO ====================
 
 // Obtener registros de hoy
@@ -45,8 +42,11 @@ router.get("/history/today", getTodayHistory);
 router.get("/history/week", getWeekHistory);
 
 // Obtener registros de un mes específico
-// GET /api/control/history/month/2024-01
+// GET /api/control/history/month/:yearMonth
 router.get("/history/month/:yearMonth", getMonthHistory);
+
+// Ver el historial de un alumno específico por matrícula
+router.get("/history/:matricula", getUserHistory);
 
 // Obtener todos los registros históricos
 // GET /api/control/all-history

@@ -13,6 +13,7 @@ import GestionMiembros from "./pages/GestionMiembros";
 import GestionStaff from "./pages/GestionStaff";
 import { AccessControl } from "./pages/AccesControl";
 import { History } from "./pages/History";
+import { Estadisticas } from "./pages/Estadisticas";
 import axios from "axios";
 import NoFound from "./components/notFound";
 import { Rutinas } from "./pages/Rutinas";
@@ -62,6 +63,7 @@ function App() {
           <Route path="/employees" element={user ? <GestionStaff /> : <Navigate to="/login" />} />
           <Route path="/gestion-staff" element={user ? <GestionStaff /> : <Navigate to="/login" />} />
           <Route path="/history" element={user ? <History user={user} /> : <Navigate to="/login" />} />
+          <Route path="/estadisticas" element={user ? <Estadisticas user={user} /> : <Navigate to="/login" />} />
           <Route path="/rutinas" element={user ? <Rutinas user={user} /> : <Navigate to="/login" />} />
           <Route path="*" element={<NoFound />}/>
         </Routes>
