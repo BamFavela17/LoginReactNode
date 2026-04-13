@@ -730,64 +730,22 @@
         }
       }
     },
-    "/api/control/history/{matricula}": {
+    "/api/control/history/me": {
       "get": {
         "tags": [
           "Attendance"
         ],
-        "summary": "Historial de visitas por alumno",
-        "description": "",
-        "parameters": [
-          {
-            "name": "matricula",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "description": "Matrícula del alumno"
-          }
-        ],
+        "summary": "Historial del alumno autenticado",
+        "description": "Retorna el historial del usuario autenticado basado en su sesión.",
         "responses": {
           "200": {
-            "description": "Historial obtenido.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "example": "John Doe"
-                },
-                "matricula": {
-                  "type": "string",
-                  "example": "21920000"
-                },
-                "historial": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "fecha": {
-                        "type": "string",
-                        "example": "2023-10-25"
-                      },
-                      "entrada": {
-                        "type": "string",
-                        "example": "08:00"
-                      },
-                      "salida": {
-                        "type": "string",
-                        "example": "10:00"
-                      }
-                    }
-                  }
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
+            "description": "OK"
           },
           "401": {
             "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           },
           "404": {
             "description": "Not Found"
@@ -860,6 +818,74 @@
           },
           "401": {
             "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/control/history/{matricula}": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "summary": "Historial de visitas por alumno",
+        "description": "",
+        "parameters": [
+          {
+            "name": "matricula",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Matrícula del alumno"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historial obtenido.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "John Doe"
+                },
+                "matricula": {
+                  "type": "string",
+                  "example": "21920000"
+                },
+                "historial": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "fecha": {
+                        "type": "string",
+                        "example": "2023-10-25"
+                      },
+                      "entrada": {
+                        "type": "string",
+                        "example": "08:00"
+                      },
+                      "salida": {
+                        "type": "string",
+                        "example": "10:00"
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"
