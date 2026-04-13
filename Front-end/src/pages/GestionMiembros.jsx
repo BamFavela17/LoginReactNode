@@ -296,15 +296,28 @@ export default function GestionMiembros() {
                     />
                   </div>
                   <div>
+
                     <label className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-bold">Matrícula</label>
-                    <input
-                      name="matricula"
-                      value={formData.matricula}
-                      onChange={handleChange}
-                      className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-[#D4AF37] focus:bg-white transition-all"
-                      placeholder="21920000"
-                      required
-                    />
+                    {selectedId ? (
+                      <input
+                        name="matricula"
+                        value={formData.matricula}
+                        onChange={handleChange}
+                        className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-[#D4AF37] focus:bg-white transition-all"
+                        placeholder="21920000"
+                        readOnly={!!selectedId}
+                        required
+                      />
+                    ) : (
+                      <input
+                        name="matricula"
+                        value={formData.matricula}
+                        onChange={handleChange}
+                        className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-[#D4AF37] focus:bg-white transition-all"
+                        placeholder="21920000"
+                        required
+                      />
+                    )}
                   </div>
                 </div>
 

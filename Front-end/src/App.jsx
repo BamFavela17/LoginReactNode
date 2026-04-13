@@ -12,8 +12,10 @@ import Register from "./pages/Register";
 import GestionMiembros from "./pages/GestionMiembros";
 import GestionStaff from "./pages/GestionStaff";
 import { AccessControl } from "./pages/AccesControl";
+import { History } from "./pages/History";
 import axios from "axios";
 import NoFound from "./components/notFound";
+import { Rutinas } from "./pages/Rutinas";
 
 axios.defaults.withCredentials = true;
 const API_URL = '/api/auth';
@@ -38,10 +40,15 @@ function App() {
 
     checkLoggedIn();
   }, []);
-  
-if(loading){
-  return <div className="">Loading...</div>
+
+  if (loading) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/60">
+      <div className="h-14 w-14 animate-spin rounded-full border-4 border-gray-200 border-t-[#D4AF37]"></div>
+    </div>
+  );
 }
+
   return (
       <Router>
           <Navbar user={user} setUser={setUser}/>
@@ -54,6 +61,8 @@ if(loading){
           <Route path="/gestion-miembros" element={user ? <GestionMiembros /> : <Navigate to="/login" />} />
           <Route path="/employees" element={user ? <GestionStaff /> : <Navigate to="/login" />} />
           <Route path="/gestion-staff" element={user ? <GestionStaff /> : <Navigate to="/login" />} />
+          <Route path="/history" element={user ? <History user={user} /> : <Navigate to="/login" />} />
+          <Route path="/rutinas" element={user ? <Rutinas user={user} /> : <Navigate to="/login" />} />
           <Route path="*" element={<NoFound />}/>
         </Routes>
       </Router>

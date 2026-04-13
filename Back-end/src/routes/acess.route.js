@@ -5,6 +5,7 @@ import {
     checkOut, 
     getLiveStatus, 
     getUserHistory,
+    getMyHistory,
     getTodayHistory,
     getWeekHistory,
     getMonthHistory,
@@ -16,7 +17,6 @@ import {
 const router = Router();
 router.use(protect);
 
-// ==================== RUTAS EXISTENTES ====================
 // Registrar entrada (Check-in)
 // Cuerpo esperado: { "matricula": "21920000", "id_admin": 1 }
 router.post("/in", checkIn);
@@ -27,6 +27,9 @@ router.put("/out", checkOut);
 
 // Ver quién está en el gym ahora mismo (en tiempo real)
 router.get("/monitor", getLiveStatus);
+
+// Ver el historial del alumno autenticado
+router.get("/history/me", getMyHistory);
 
 // Ver el historial de un alumno específico por matrícula
 router.get("/history/:matricula", getUserHistory);

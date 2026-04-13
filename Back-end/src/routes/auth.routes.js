@@ -13,8 +13,8 @@ const cookieOptions = {
   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 días
 };
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateToken = ({ id, type }) => {
+  return jwt.sign({ id, type }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
 };
@@ -41,41 +41,50 @@ router.post("/login", async (req, res) => {
      }
      #swagger.responses[400] = { description: 'Email o contraseña incorrectos.' }
   */
- /*  
-*/
   try {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({ message: "Please provide all required fields" });
     }
 
-    const userQuery = await pool.query("SELECT * FROM admins WHERE email = $1", [email]);
+    const adminQuery = await pool.query("SELECT * FROM admins WHERE email = $1", [email]);
+    let userData;
+    let userType;
 
-    if (userQuery.rows.length === 0) {
-      return res.status(400).json({ message: "Invalid email" });
+    if (adminQuery.rows.length > 0) {
+      userData = adminQuery.rows[0];
+      userType = "admin";
+    } else {
+      const userQuery = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+      if (userQuery.rows.length === 0) {
+        return res.status(400).json({ message: "Invalid email" });
+      }
+      userData = userQuery.rows[0];
+      userType = "user";
     }
 
-    const userData = userQuery.rows[0];
-
     const isMatch = await bcrypt.compare(password, userData.password_hash);
-
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid password" });
     }
 
-    // Cambiamos 'userData.id' por 'userData.id_admin'
-    const token = generateToken(userData.id_admin);
+    const token = generateToken({
+      id: userType === "admin" ? userData.id_admin : userData.id_user,
+      type: userType,
+    });
 
     res.cookie("token", token, cookieOptions);
 
     res.json({
       user: {
-        id: userData.id_admin,
+        id: userType === "admin" ? userData.id_admin : userData.id_user,
         name: userData.name,
-        lastname: userData.lastname,
-        username: userData.username,
+        lastname: userData.lastname || null,
+        username: userData.username || null,
         email: userData.email,
-        role: userData.role,
+        matricula: userData.matricula || null,
+        role: userType === "admin" ? userData.role : userData.tipo_usuario || "alumno",
+        type: userType,
       },
     });
   } catch (error) {

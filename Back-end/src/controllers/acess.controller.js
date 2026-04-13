@@ -26,7 +26,7 @@ export const checkIn = async (req, res) => {
   */
   try {
     const { matricula, id_admin } = req.body;
-    const user = await pool.query("SELECT id_user FROM users WHERE matricula = $1", [matricula]);
+    const user = await pool.query("SELECT id_user FROM users WHERE matricula = $1 AND status = 'activo' ", [matricula]);
 
     if (user.rowCount === 0) {
       return res.status(404).json({ message: "Matrícula no encontrada" });
@@ -161,6 +161,57 @@ export const getUserHistory = async (req, res) => {
     res.json(rows[0]);
   } catch (err) {
     console.error("getUserHistory error", err);
+    res.status(500).json({ message: "Error al obtener historial" });
+  }
+};
+
+// 4.b. VER HISTORIAL DEL USUARIO AUTENTICADO
+export const getMyHistory = async (req, res) => {
+  /* #swagger.tags = ['Attendance']
+     #swagger.summary = 'Historial del alumno autenticado'
+     #swagger.description = 'Retorna el historial del usuario autenticado basado en su sesión.'
+  */
+  try {
+    if (req.user.type !== "user") {
+      return res.status(403).json({ message: "Solo los alumnos pueden ver su historial personal." });
+    }
+
+    const userId = req.user.id;
+    const { rows: userRows } = await pool.query(
+      "SELECT name, matricula FROM users WHERE id_user = $1",
+      [userId]
+    );
+
+    if (userRows.length === 0) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    const user = userRows[0];
+    const { rows: records } = await pool.query(
+      `SELECT
+         i.hora_in,
+         i.hora_out,
+         CASE
+           WHEN i.hora_out IS NULL THEN 'En curso'
+           ELSE TO_CHAR(i.hora_out - i.hora_in, 'HH24:MI:SS')
+         END AS duracion,
+         CASE
+           WHEN i.hora_out IS NULL THEN 'En curso'
+           ELSE 'Finalizado'
+         END AS estatus
+       FROM in_out i
+       WHERE i.id_user = $1
+       ORDER BY i.hora_in DESC`,
+      [userId]
+    );
+
+    res.json({
+      name: user.name,
+      matricula: user.matricula,
+      records,
+    });
+  } catch (err) {
+    console.error("getMyHistory error", err);
     res.status(500).json({ message: "Error al obtener historial" });
   }
 };
