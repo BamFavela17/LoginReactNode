@@ -304,7 +304,7 @@ export default function GestionMiembros() {
                         value={formData.matricula}
                         onChange={handleChange}
                         className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-[#D4AF37] focus:bg-white transition-all"
-                        placeholder="21920000"
+                        placeholder="(8 a 12 dígitos numericos)"
                         readOnly={!!selectedId}
                         required
                       />
@@ -314,7 +314,7 @@ export default function GestionMiembros() {
                         value={formData.matricula}
                         onChange={handleChange}
                         className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-[#D4AF37] focus:bg-white transition-all"
-                        placeholder="21920000"
+                        placeholder="(8 a 12 dígitos)"
                         required
                       />
                     )}

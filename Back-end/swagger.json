@@ -232,7 +232,7 @@
                 },
                 "password": {
                   "type": "string",
-                  "example": "12345"
+                  "example": "123456"
                 },
                 "role": {
                   "type": "string",

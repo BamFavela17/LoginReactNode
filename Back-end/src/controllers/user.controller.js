@@ -139,7 +139,7 @@ export const updateAdmin = async (req, res) => {
           lastname: "pro",
           username: "admin_juan",
           email: "admin@gym.com",
-          password: "12345",
+          password: "123456",
           role: "superadmin"
         }
      }

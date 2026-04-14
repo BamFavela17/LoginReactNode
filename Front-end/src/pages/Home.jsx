@@ -66,12 +66,12 @@ export default function Home({ user, error }) {
                     <h3 className="mb-2 text-lg font-semibold text-[#3D1E05]">Estadísticas</h3>
                     <p className="text-sm text-[#8A7060]">Consulta los días de mayor carga y los patrones de uso del gimnasio.</p>
                   </Link>
-
-                  <Link to="/employees" className="group overflow-hidden rounded-[20px] border border-[#F2EDE8] bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                    { role === "superadmin" && (
+                      <Link to="/employees" className="group overflow-hidden rounded-[20px] border border-[#F2EDE8] bg-white p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md">
                     <div className="mb-4 text-3xl">💼</div>
                     <h3 className="mb-2 text-lg font-semibold text-[#3D1E05]">Staff & Empleados</h3>
                     <p className="text-sm text-[#8A7060]">Configura roles y personal administrativo.</p>
-                  </Link>
+                  </Link>)}
                 </>
               )}
 
