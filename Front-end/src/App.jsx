@@ -19,6 +19,7 @@ import { Estadisticas } from "./pages/Estadisticas";
 import axios from "axios";
 import NoFound from "./components/notFound";
 import { Rutinas } from "./pages/Rutinas";
+import Settings from "./pages/Settings";
 
 axios.defaults.withCredentials = true;
 const API_URL = "/api/auth";
@@ -94,9 +95,13 @@ function App() {
           path="/rutinas"
           element={user ? <Rutinas user={user} /> : <Navigate to="/login" />}
         />
+        <Route
+          path="/settings"
+          element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/login" />}
+        />
         <Route path="*" element={<NoFound />} />
       </Routes>
-      <Footer />
+      {user && <Footer />}
     </Router>
   );
 }
