@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React from "react";
+import { Link } from "react-router-dom";
+import { useStatistics } from "../hooks/useStatistics";
 
 const formatDateLabel = (dateString) => {
   const date = new Date(dateString);
@@ -21,101 +21,18 @@ const formatHour = (dateString) => {
   });
 };
 
-const getDayKey = (dateString) => {
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return dateString;
-  return date.toISOString().slice(0, 10);
-};
-
-const countByKey = (items, keyFn) => {
-  return items.reduce((acc, item) => {
-    const key = keyFn(item);
-    if (!key) return acc;
-    acc[key] = (acc[key] || 0) + 1;
-    return acc;
-  }, {});
-};
-
 export const Estadisticas = ({ user }) => {
-  const [todayRecords, setTodayRecords] = useState([]);
-  const [weekRecords, setWeekRecords] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-
-    const role = (user.role || user.tipo_usuario || "").toString().toLowerCase();
-    const isAdmin = ["admin", "administrador", "superadmin", "administrator"].includes(role);
-
-    if (!isAdmin) {
-      setError("Solo administradores pueden ver estas estadísticas.");
-      setLoading(false);
-      return;
-    }
-
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        const [todayResponse, weekResponse] = await Promise.all([
-          axios.get("/api/control/history/today"),
-          axios.get("/api/control/history/week"),
-        ]);
-
-        setTodayRecords(Array.isArray(todayResponse.data) ? todayResponse.data : []);
-        setWeekRecords(Array.isArray(weekResponse.data) ? weekResponse.data : []);
-      } catch (err) {
-        console.error("Error fetching statistics:", err);
-        setError(err.response?.data?.message || "No se pudieron cargar las estadísticas.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, [user, navigate]);
-
-  const dailyCounts = useMemo(() => {
-    return countByKey(weekRecords, (record) => getDayKey(record.entrada));
-  }, [weekRecords]);
-
-  const hourCounts = useMemo(() => {
-    return countByKey(weekRecords, (record) => {
-      const date = new Date(record.entrada);
-      if (Number.isNaN(date.getTime())) return null;
-      return date.getHours().toString().padStart(2, "0") + ":00";
-    });
-  }, [weekRecords]);
-
-  const sortedDays = useMemo(() => {
-    return Object.entries(dailyCounts)
-      .map(([day, count]) => ({ day, count }))
-      .sort((a, b) => b.count - a.count);
-  }, [dailyCounts]);
-
-  const sortedHours = useMemo(() => {
-    return Object.entries(hourCounts)
-      .map(([hour, count]) => ({ hour, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-  }, [hourCounts]);
-
-  const dailyTrend = useMemo(() => {
-    return Object.entries(dailyCounts)
-      .map(([day, count]) => ({ day, count }))
-      .sort((a, b) => a.day.localeCompare(b.day));
-  }, [dailyCounts]);
-
-  const maxDailyCount = useMemo(() => {
-    return dailyTrend.reduce((max, item) => Math.max(max, item.count), 0) || 1;
-  }, [dailyTrend]);
-
-  const busiestDay = sortedDays[0] || null;
-  const quietestDay = sortedDays[sortedDays.length - 1] || null;
+  const {
+    todayRecords,
+    weekRecords,
+    loading,
+    error,
+    dailyTrend,
+    sortedHours,
+    busiestDay,
+    quietestDay,
+    maxDailyCount,
+  } = useStatistics(user);
 
   return (
     <main className="min-h-screen bg-[#FAF8F5] px-6 py-10 sm:px-10 lg:px-14">
@@ -129,6 +46,12 @@ export const Estadisticas = ({ user }) => {
             <div className="rounded-2xl bg-[#EFF6FF] px-4 py-3 text-sm font-semibold text-[#1D4ED8]">
               Administrador: <span className="font-black">{user.name}</span>
             </div>
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center rounded-[16px] border border-[#D4AF37] bg-[#FFF5D0] px-5 py-3 text-sm font-bold text-[#7A3D16] transition hover:bg-[#F7E3A8]"
+            >
+              Volver al inicio
+            </Link>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

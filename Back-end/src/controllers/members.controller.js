@@ -3,6 +3,60 @@ import bcrypt from "bcrypt";
 
 const SALT_ROUNDS = 10;
 
+const validateMemberData = (data, isNew = true) => {
+  const errors = {};
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const matriculaPattern = /^\d{8,12}$/;
+
+  if (!data.name || !data.name.trim()) {
+    errors.name = "El nombre es obligatorio.";
+  }
+
+  if (!data.matricula || !data.matricula.trim()) {
+    errors.matricula = "La matrícula es obligatoria.";
+  } else if (!matriculaPattern.test(data.matricula.trim())) {
+    errors.matricula = "La matrícula debe tener entre 8 y 12 dígitos numéricos.";
+  }
+
+  if (!data.email || !data.email.trim()) {
+    errors.email = "El correo electrónico es obligatorio.";
+  } else if (!emailPattern.test(data.email.trim())) {
+    errors.email = "El correo no tiene un formato válido.";
+  }
+
+  const carreraPattern = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,}$/;
+
+  if (!data.carrera || !data.carrera.trim()) {
+    errors.carrera = "La carrera es obligatoria.";
+  } else if (!carreraPattern.test(data.carrera.trim())) {
+    errors.carrera = "La carrera solo puede contener letras y espacios (por ejemplo: Ingeniería de Software o IS).";
+  }
+
+  if (!data.semestre || !data.semestre.trim()) {
+    errors.semestre = "El semestre es obligatorio.";
+  }
+
+  if (isNew) {
+    if (!data.password || !data.password.trim()) {
+      errors.password = "La contraseña es obligatoria para crear un miembro.";
+    } else if (data.password.length < 6) {
+      errors.password = "La contraseña debe tener al menos 6 caracteres.";
+    }
+  } else if (data.password && data.password.trim().length > 0 && data.password.length < 6) {
+    errors.password = "La contraseña debe tener al menos 6 caracteres.";
+  }
+
+  if (!data.tipo_usuario || !data.tipo_usuario.trim()) {
+    errors.tipo_usuario = "El tipo de usuario es obligatorio.";
+  }
+
+  if (!data.status || !data.status.trim()) {
+    errors.status = "El estado es obligatorio.";
+  }
+
+  return errors;
+};
+
 // Get all users
 export const getMember = async (req, res) => {
   /* #swagger.tags = ['Members']
@@ -76,15 +130,45 @@ export const createMember = async (req, res) => {
   try {
     const { 
       matricula, carrera, semestre, name, email, 
-      password, tipo_usuario, datos_fisicos, historial 
+      password, tipo_usuario, status, datos_fisicos, historial 
     } = req.body;
+
+    const validationErrors = validateMemberData(req.body, true);
+    if (Object.keys(validationErrors).length > 0) {
+      return res.status(400).json({
+        message: "Validación de datos fallida.",
+        errors: validationErrors,
+      });
+    }
+
+    const existingMatricula = await pool.query(
+      "SELECT id_user FROM users WHERE matricula = $1",
+      [matricula.trim()]
+    );
+    if (existingMatricula.rows.length > 0) {
+      return res.status(400).json({
+        message: "La matrícula ya está registrada.",
+        errors: { matricula: "Esta matrícula ya existe." },
+      });
+    }
+
+    const existingEmail = await pool.query(
+      "SELECT id_user FROM users WHERE email = $1",
+      [email.trim().toLowerCase()]
+    );
+    if (existingEmail.rows.length > 0) {
+      return res.status(400).json({
+        message: "El correo electrónico ya está registrado.",
+        errors: { email: "Este correo ya está en uso." },
+      });
+    }
 
     const hashed = await bcrypt.hash(password, SALT_ROUNDS);
 
     const { rows } = await pool.query(
-      `INSERT INTO users (matricula, carrera, semestre, name, email, password_hash, tipo_usuario, datos_fisicos, historial) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-      [matricula, carrera, semestre, name, email, hashed, tipo_usuario, datos_fisicos, historial]
+      `INSERT INTO users (matricula, carrera, semestre, name, email, password_hash, tipo_usuario, status, datos_fisicos, historial) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+      [matricula.trim(), carrera.trim(), semestre.trim(), name.trim(), email.trim().toLowerCase(), hashed, tipo_usuario.trim(), status.trim(), datos_fisicos || "", historial || ""]
     );
 
     const { password_hash, ...user } = rows[0];
@@ -146,10 +230,40 @@ export const updateMemeber = async (req, res) => {
         password, tipo_usuario, status, datos_fisicos, historial 
     } = req.body;
 
-    let query = "UPDATE users SET matricula=$1, carrera=$2, semestre=$3, name=$4, email=$5, tipo_usuario=$6, status=$7, datos_fisicos=$8, historial=$9";
-    let values = [matricula, carrera, semestre, name, email, tipo_usuario, status, datos_fisicos, historial];
+    const validationErrors = validateMemberData(req.body, false);
+    if (Object.keys(validationErrors).length > 0) {
+      return res.status(400).json({
+        message: "Validación de datos fallida.",
+        errors: validationErrors,
+      });
+    }
 
-    if (password) {
+    const existingMatricula = await pool.query(
+      "SELECT id_user FROM users WHERE matricula = $1 AND id_user != $2",
+      [matricula.trim(), id]
+    );
+    if (existingMatricula.rows.length > 0) {
+      return res.status(400).json({
+        message: "La matrícula ya está registrada en otro miembro.",
+        errors: { matricula: "Esta matrícula ya existe." },
+      });
+    }
+
+    const existingEmail = await pool.query(
+      "SELECT id_user FROM users WHERE email = $1 AND id_user != $2",
+      [email.trim().toLowerCase(), id]
+    );
+    if (existingEmail.rows.length > 0) {
+      return res.status(400).json({
+        message: "El correo electrónico ya está registrado en otro miembro.",
+        errors: { email: "Este correo ya está en uso." },
+      });
+    }
+
+    let query = "UPDATE users SET matricula=$1, carrera=$2, semestre=$3, name=$4, email=$5, tipo_usuario=$6, status=$7, datos_fisicos=$8, historial=$9";
+    let values = [matricula.trim(), carrera.trim(), semestre.trim(), name.trim(), email.trim().toLowerCase(), tipo_usuario.trim(), status.trim(), datos_fisicos || "", historial || ""];
+
+    if (password && password.trim()) {
       const hashed = await bcrypt.hash(password, SALT_ROUNDS);
       query += ", password_hash=$10 WHERE id_user=$11 RETURNING *";
       values.push(hashed, id);
@@ -161,7 +275,7 @@ export const updateMemeber = async (req, res) => {
     const { rows } = await pool.query(query, values);
     
     if (rows.length === 0) {
-      return res.status(404).json({ message: "Memember not found" });
+      return res.status(404).json({ message: "Member not found" });
     }
 
     const { password_hash, ...user } = rows[0];

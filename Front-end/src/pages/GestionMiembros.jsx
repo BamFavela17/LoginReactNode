@@ -1,154 +1,49 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import { Edit3, Trash2, Search, RefreshCcw, UserPlus, X, Save } from "lucide-react";
-
-const initialForm = {
-  matricula: "",
-  name: "",
-  email: "",
-  carrera: "",
-  semestre: "",
-  tipo_usuario: "Miembro Activo",
-  status: "Activo",
-  datos_fisicos: "",
-  historial: "",
-  password: "",
-};
+import { Link } from "react-router-dom";
+import { useMembers } from "../hooks/useMembers";
+import { useMemberForm } from "../hooks/useMemberForm";
 
 export default function GestionMiembros() {
-  const [members, setMembers] = useState([]);
-  const [filteredMembers, setFilteredMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [selectedId, setSelectedId] = useState(null);
-  const [search, setSearch] = useState("");
-  const [message, setMessage] = useState({ text: "", type: "" });
-  const [formData, setFormData] = useState(initialForm);
   const api = "/api/alumno";
 
-  useEffect(() => {
-    loadMembers();
-  }, []);
+  const {
+    members,
+    filteredMembers,
+    loading,
+    search,
+    setSearch,
+    message,
+    setMessage,
+    loadMembers,
+    handleDelete,
+    activeCount,
+  } = useMembers(api);
 
-  useEffect(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) {
-      setFilteredMembers(members);
-      return;
-    }
+  const {
+    formData,
+    errors,
+    selectedId,
+    saving,
+    resetForm,
+    handleChange,
+    handleSubmit,
+    startEdit,
+  } = useMemberForm(api, loadMembers, setMessage);
 
-    setFilteredMembers(
-      members.filter((member) =>
-        [member.name, member.matricula, member.carrera, member.email, member.tipo_usuario]
-          .join(" ")
-          .toLowerCase()
-          .includes(query)
-      )
-    );
-  }, [search, members]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const loadMembers = async () => {
-    setLoading(true);
-    setMessage({ text: "", type: "" });
+  const openModal = () => setIsModalOpen(true);
 
-    try {
-      const { data } = await axios.get(`${api}/users`);
-      setMembers(data);
-      setFilteredMembers(data);
-    } catch (error) {
-      setMessage({ text: "No se pudo cargar la lista de miembros.", type: "error" });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const resetForm = () => {
-    setSelectedId(null);
-    setFormData(initialForm);
-    setMessage({ text: "", type: "" });
+  const closeModal = () => {
+    setIsModalOpen(false);
+    resetForm();
   };
 
   const handleEdit = (member) => {
-    setSelectedId(member.id_user);
-    setFormData({
-      matricula: member.matricula || "",
-      name: member.name || "",
-      email: member.email || "",
-      carrera: member.carrera || "",
-      semestre: member.semestre || "",
-      tipo_usuario: member.tipo_usuario || "Miembro Activo",
-      status: member.status || "Activo",
-      datos_fisicos: member.datos_fisicos || "",
-      historial: member.historial || "",
-      password: "",
-    });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    startEdit(member);
+    openModal();
   };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("¿Eliminar definitivamente este miembro?")) return;
-
-    try {
-      await axios.delete(`${api}/user/${id}`);
-      setMessage({ text: "Miembro eliminado correctamente.", type: "success" });
-      loadMembers();
-    } catch (error) {
-      setMessage({ text: "No se pudo eliminar el miembro.", type: "error" });
-    }
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setSaving(true);
-    setMessage({ text: "", type: "" });
-
-    const payload = {
-      matricula: formData.matricula,
-      name: formData.name,
-      email: formData.email,
-      carrera: formData.carrera,
-      semestre: formData.semestre,
-      tipo_usuario: formData.tipo_usuario,
-      status: formData.status,
-      datos_fisicos: formData.datos_fisicos,
-      historial: formData.historial,
-    };
-
-    if (formData.password) {
-      payload.password = formData.password;
-    }
-
-    if (!selectedId && !payload.password) {
-      setMessage({ text: "La contraseña es obligatoria para crear un miembro.", type: "error" });
-      setSaving(false);
-      return;
-    }
-
-    try {
-      if (selectedId) {
-        const body = { ...payload };
-        if (!body.password) delete body.password;
-        await axios.put(`${api}/user/${selectedId}`, body);
-        setMessage({ text: "Miembro actualizado con éxito.", type: "success" });
-      } else {
-        await axios.post(`${api}/user`, payload);
-        setMessage({ text: "Miembro creado correctamente.", type: "success" });
-      }
-      resetForm();
-      loadMembers();
-    } catch (error) {
-      setMessage({ text: error.response?.data?.message || "Error al guardar el miembro.", type: "error" });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const activeCount = members.filter((member) => member.status?.toLowerCase() === "activo").length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 py-6 px-4 sm:px-6 lg:px-8">
@@ -164,6 +59,12 @@ export default function GestionMiembros() {
                 Administra la información de alumnos, actualiza perfiles y controla el estado de sus membresías desde una vista clara y segura.
               </p>
             </div>
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center rounded-[16px] border border-[#D4AF37] bg-[#FFF5D0] px-5 py-3 text-sm font-bold text-[#7A3D16] transition hover:bg-[#F7E3A8]"
+            >
+              Volver al inicio
+            </Link>
             <div className="grid grid-cols-2 gap-4 w-full sm:w-auto">
               <div className="rounded-xl bg-slate-50 p-6 shadow-inner border border-slate-200">
                 <p className="text-[10px] uppercase tracking-[0.3em] text-slate-400">Total Miembros</p>
@@ -294,6 +195,9 @@ export default function GestionMiembros() {
                       placeholder="Nombre completo"
                       required
                     />
+                    {errors.name && (
+                      <p className="mt-2 text-xs text-rose-600">{errors.name}</p>
+                    )}
                   </div>
                   <div>
 
@@ -318,6 +222,9 @@ export default function GestionMiembros() {
                         required
                       />
                     )}
+                    {errors.matricula && (
+                      <p className="mt-2 text-xs text-rose-600">{errors.matricula}</p>
+                    )}
                   </div>
                 </div>
 
@@ -333,6 +240,9 @@ export default function GestionMiembros() {
                     placeholder="alumno@ues.edu.sv"
                     required
                   />
+                  {errors.email && (
+                    <p className="mt-2 text-xs text-rose-600">{errors.email}</p>
+                  )}
                 </div>
 
                 {/* Carrera y Semestre */}
@@ -344,8 +254,12 @@ export default function GestionMiembros() {
                       value={formData.carrera}
                       onChange={handleChange}
                       className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-[#D4AF37] focus:bg-white transition-all"
-                      placeholder="Ingeniería"
+                      placeholder="Ingeniería de Software o IS"
                     />
+                    <p className="mt-2 text-xs text-slate-500">Usa nombre completo o abreviatura. Solo letras y espacios.</p>
+                    {errors.carrera && (
+                      <p className="mt-2 text-xs text-rose-600">{errors.carrera}</p>
+                    )}
                   </div>
                   <div>
                     <label className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-bold">Semestre</label>
@@ -356,6 +270,9 @@ export default function GestionMiembros() {
                       className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-[#D4AF37] focus:bg-white transition-all"
                       placeholder="2do"
                     />
+                    {errors.semestre && (
+                      <p className="mt-2 text-xs text-rose-600">{errors.semestre}</p>
+                    )}
                   </div>
                 </div>
 
@@ -369,8 +286,7 @@ export default function GestionMiembros() {
                       onChange={handleChange}
                       className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-[#D4AF37] focus:bg-white transition-all"
                     >
-                      <option value="Miembro Activo">Miembro Activo</option>
-                      <option value="Personal">Personal</option>
+                      <option value="Miembro Activo">Miembro</option>
                       <option value="Ex-miembro">Ex-miembro</option>
                       <option value="Alumno">Alumno</option>
                     </select>
@@ -402,6 +318,9 @@ export default function GestionMiembros() {
                     className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-[#D4AF37] focus:bg-white transition-all"
                     placeholder={selectedId ? "Nueva contraseña (opcional)" : "Contraseña segura"}
                   />
+                  {errors.password && (
+                    <p className="mt-2 text-xs text-rose-600">{errors.password}</p>
+                  )}
                 </div>
 
                 {/* Datos físicos */}

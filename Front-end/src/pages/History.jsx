@@ -1,39 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React from "react";
+import { useHistoryData } from "../hooks/useHistoryData";
+import { Link } from "react-router-dom";
 
 export const History = ({ user }) => {
-  const [historyData, setHistoryData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-
-    if (user.type !== "user") {
-      setError("Solo los alumnos pueden ver su historial aquí.");
-      setLoading(false);
-      return;
-    }
-
-    const fetchHistory = async () => {
-      try {
-        const { data } = await axios.get(`/api/control/history/me`);
-        setHistoryData(data);
-      } catch (err) {
-        console.error("Error fetching history:", err);
-        setError(err.response?.data?.message || err.message || "No se pudo cargar el historial.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHistory();
-  }, [user, navigate]);
+  const { historyData, loading, error } = useHistoryData(user);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -74,9 +44,18 @@ export const History = ({ user }) => {
       return <p className="text-sm text-[#8A7060]">Aún no hay registros de visitas.</p>;
     }
 
+    const sortedRecords = [...historyData.records].sort((a, b) => {
+      const aInProgress = !a.hora_out || a.estatus?.toLowerCase() === "en curso";
+      const bInProgress = !b.hora_out || b.estatus?.toLowerCase() === "en curso";
+
+      if (aInProgress && !bInProgress) return -1;
+      if (!aInProgress && bInProgress) return 1;
+      return new Date(b.hora_in) - new Date(a.hora_in);
+    });
+
     return (
       <div className="space-y-4">
-        {historyData.records.map((record, index) => (
+        {sortedRecords.map((record, index) => (
           <div key={index} className="rounded-3xl border border-[#E7DFCE] bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between gap-4">
               <p className="text-sm font-bold text-[#3D1E05]">{formatDate(record.hora_in)}</p>
@@ -103,6 +82,7 @@ export const History = ({ user }) => {
     <main className="min-h-screen bg-[#FAF8F5] px-6 py-10 sm:px-10 lg:px-14">
       <div className="mx-auto max-w-5xl space-y-8">
         <section className="rounded-[24px] border border-[#F2EDE8] bg-white p-8 shadow-[0_20px_60px_rgba(92,45,14,0.08)]">
+          
           <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-3xl font-black text-[#3D1E05]">Mi Historial</h1>
@@ -111,6 +91,12 @@ export const History = ({ user }) => {
             <div className="rounded-2xl bg-[#FFF2D1] px-4 py-3 text-sm font-semibold text-[#7A3D16]">
               Matrícula: <span className="font-black">{user?.matricula || "-"}</span>
             </div>
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center rounded-[16px] border border-[#D4AF37] bg-[#FFF5D0] px-5 py-3 text-sm font-bold text-[#7A3D16] transition hover:bg-[#F7E3A8]"
+            >
+              Volver al inicio
+            </Link>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">

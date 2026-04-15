@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React from "react";
 import {
   UserCheck,
   UserMinus,
@@ -11,15 +10,25 @@ import {
   Settings,
   LayoutDashboard,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAccessControl } from "../hooks/useAccessControl";
 
 export const AccessControl = ({ adminUser }) => {
-  const [matricula, setMatricula] = useState("");
-  const [liveUsers, setLiveUsers] = useState([]);
-  const [message, setMessage] = useState({ text: "", type: "" });
-  const [historyMatricula, setHistoryMatricula] = useState("");
-  const [historyData, setHistoryData] = useState(null);
-  const [loadingHistory, setLoadingHistory] = useState(false);
-  const API_BASE = "/api/control";
+  const {
+    matricula,
+    setMatricula,
+    searchTerm,
+    setSearchTerm,
+    message,
+    historyMatricula,
+    setHistoryMatricula,
+    historyData,
+    loadingHistory,
+    fetchHistory,
+    handleAction,
+    liveUsers,
+    filteredLiveUsers,
+  } = useAccessControl(adminUser);
 
   const formatDateTime = (timestamp) => {
     if (!timestamp) return "—";
@@ -92,77 +101,7 @@ export const AccessControl = ({ adminUser }) => {
     );
   };
 
-  useEffect(() => {
-    fetchLiveStatus();
-    const interval = setInterval(fetchLiveStatus, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
-  const fetchLiveStatus = async () => {
-    try {
-      const { data } = await axios.get(`${API_BASE}/monitor`);
-      setLiveUsers(data);
-    } catch (err) {
-      console.error("Error al cargar monitoreo", err);
-    }
-  };
-
-  const fetchHistory = async () => {
-    if (!historyMatricula) {
-      setHistoryData(null);
-      return;
-    }
-
-    setLoadingHistory(true);
-    try {
-      const { data } = await axios.get(
-        `${API_BASE}/history/${historyMatricula}`,
-      );
-      setHistoryData(data);
-      setLoadingHistory(false);
-    } catch (err) {
-      setLoadingHistory(false);
-      setHistoryData({
-        error: err.response?.data?.message || "No se encontró historial",
-      });
-    }
-  };
-
-  const handleAction = async (actionType) => {
-    if (!matricula) return;
-    setMessage({ text: "", type: "" });
-
-    try {
-      const endpoint = actionType === "in" ? "/in" : "/out";
-      const adminId = adminUser?.id_admin || adminUser?.id;
-
-      if (actionType === "in" && !adminId) {
-        setMessage({
-          text: "Error de sesión: Admin no identificado.",
-          type: "error",
-        });
-        return;
-      }
-
-      const payload =
-        actionType === "in" ? { matricula, id_admin: adminId } : { matricula };
-
-      const { data } = await axios({
-        method: actionType === "in" ? "post" : "put",
-        url: `${API_BASE}${endpoint}`,
-        data: payload,
-      });
-
-      setMessage({ text: data.message, type: "success" });
-      setMatricula("");
-      fetchLiveStatus();
-    } catch (err) {
-      setMessage({
-        text: err.response?.data?.message || "Error en el servidor",
-        type: "error",
-      });
-    }
-  };
 
   return (
     <div className="min-h-screen bg-[#f8fafc] py-6 px-4 sm:px-6 lg:px-8 font-sans">
@@ -191,6 +130,12 @@ export const AccessControl = ({ adminUser }) => {
               {adminUser?.name || "Administrador"}
             </p>
           </div>
+          <Link
+              to="/"
+              className="inline-flex items-center justify-center rounded-[16px] border border-[#D4AF37] bg-[#FFF5D0] px-5 py-3 text-sm font-bold text-[#7A3D16] transition hover:bg-[#F7E3A8]"
+            >
+              Volver al inicio
+            </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
@@ -358,6 +303,21 @@ export const AccessControl = ({ adminUser }) => {
                 </div>
               </div>
 
+              <div className="px-8 py-6 border-b border-slate-100 bg-slate-50 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="text-sm text-slate-500">
+                  {filteredLiveUsers.length} de {liveUsers.length} registros mostrados
+                </div>
+                <div className="w-full sm:w-80">
+                  <input
+                    type="search"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Buscar por matrícula, nombre, correo o carrera"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-[#800020] focus:ring-2 focus:ring-[#D4AF37]/20"
+                  />
+                </div>
+              </div>
+
               <div className="flex-grow overflow-x-auto overflow-y-auto max-h-[24rem]">
                 <table className="table-auto min-w-[720px] w-full text-left">
                   <thead className="sticky top-0 bg-slate-50 border-b border-slate-100 z-10">
@@ -380,8 +340,8 @@ export const AccessControl = ({ adminUser }) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    {liveUsers.length > 0 ? (
-                      liveUsers.map((item, idx) => (
+                    {filteredLiveUsers.length > 0 ? (
+                      filteredLiveUsers.map((item, idx) => (
                         <tr
                           key={idx}
                           className="hover:bg-slate-50/50 transition-all group"
