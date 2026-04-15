@@ -10,6 +10,9 @@ const initialForm = {
   password: "",
 };
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const STAFF_ROLES_OPTIONS = ["staff", "superadmin", "entrenador", "admin", "recepcionista"];
+
 const searchableFields = ["name", "lastname", "username", "email", "role"];
 
 export function useStaffManagement() {
@@ -21,6 +24,7 @@ export function useStaffManagement() {
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState({ text: "", type: "" });
   const [formData, setFormData] = useState(initialForm);
+  const [errors, setErrors] = useState({});
   const api = "/api/users";
 
   const fetchStaff = async () => {
@@ -64,6 +68,7 @@ export function useStaffManagement() {
     setSelectedId(null);
     setFormData(initialForm);
     setMessage({ text: "", type: "" });
+    setErrors({});
   };
 
   const handleEdit = (admin) => {
@@ -76,6 +81,7 @@ export function useStaffManagement() {
       role: admin.role || "staff",
       password: "",
     });
+    setErrors({});
     setMessage({ text: "", type: "" });
   };
 
@@ -91,10 +97,46 @@ export function useStaffManagement() {
     }
   };
 
+  const validateForm = () => {
+    const nextErrors = {};
+
+    if (!formData.name.trim()) {
+      nextErrors.name = "El nombre es obligatorio.";
+    }
+    if (!formData.username.trim()) {
+      nextErrors.username = "El nombre de usuario es requerido para el inicio de sesión.";
+    }
+    if (!formData.email.trim()) {
+      nextErrors.email = "El correo electrónico es obligatorio.";
+    } else if (!emailPattern.test(formData.email.trim())) {
+      nextErrors.email = "Ingresa un formato de correo válido (ejemplo@ues.mx).";
+    }
+    if (!formData.role.trim()) {
+      nextErrors.role = "Debes asignar un rol al usuario.";
+    }
+
+    if (!selectedId && !formData.password.trim()) {
+      nextErrors.password = "La contraseña es obligatoria para nuevos registros.";
+    } else if (formData.password.trim() && formData.password.length < 6) {
+      nextErrors.password = "La contraseña debe tener al menos 6 caracteres.";
+    }
+
+    setErrors(nextErrors);
+    return nextErrors;
+  };
+
   const handleSubmit = async (event) => {
-    event.preventDefault();
+    if (event?.preventDefault) event.preventDefault();
     setSaving(true);
     setMessage({ text: "", type: "" });
+    setErrors({});
+
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setMessage({ text: "Revisa los campos marcados en rojo.", type: "error" });
+      setSaving(false);
+      return false;
+    }
 
     const payload = {
       name: formData.name,
@@ -108,12 +150,6 @@ export function useStaffManagement() {
       payload.password = formData.password;
     }
 
-    if (!selectedId && !formData.password) {
-      setMessage({ text: "La contraseña es obligatoria para crear staff.", type: "error" });
-      setSaving(false);
-      return;
-    }
-
     try {
       if (selectedId) {
         await axios.put(`${api}/admin/${selectedId}`, payload);
@@ -124,8 +160,14 @@ export function useStaffManagement() {
       }
       resetForm();
       fetchStaff();
+      return true;
     } catch (err) {
-      setMessage({ text: err.response?.data?.message || "Error al guardar el staff.", type: "error" });
+      const serverErrors = err.response?.data?.errors;
+      if (serverErrors && typeof serverErrors === "object") {
+        setErrors((prev) => ({ ...prev, ...serverErrors }));
+      }
+      setMessage({ text: err.response?.data?.message || "Error al procesar la solicitud.", type: "error" });
+      return false;
     } finally {
       setSaving(false);
     }
@@ -134,6 +176,7 @@ export function useStaffManagement() {
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   const totalStaff = staff.length;
@@ -149,7 +192,7 @@ export function useStaffManagement() {
     setSearch,
     message,
     formData,
-    errors: {},
+    errors,
     resetForm,
     handleEdit,
     handleDelete,

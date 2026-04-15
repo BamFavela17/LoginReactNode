@@ -73,20 +73,13 @@ function App() {
         />
         <Route
           path="/members"
-          element={user ? <GestionMiembros /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/gestion-miembros"
-          element={user ? <GestionMiembros /> : <Navigate to="/login" />}
+          element={user ? <GestionMiembros adminUser={user} /> : <Navigate to="/login" />}
         />
         <Route
           path="/employees"
-          element={user ? <GestionStaff /> : <Navigate to="/login" />}
+          element={user ? <GestionStaff adminUser={user} /> : <Navigate to="/login" />}
         />
-        <Route
-          path="/gestion-staff"
-          element={user ? <GestionStaff /> : <Navigate to="/login" />}
-        />
+        
         <Route
           path="/history"
           element={user ? <History user={user} /> : <Navigate to="/login" />}

@@ -24,12 +24,12 @@ const validateMemberData = (data, isNew = true) => {
     errors.email = "El correo no tiene un formato válido.";
   }
 
-  const carreraPattern = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,}$/;
+  const carreraPattern = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s.\-]{2,}$/;
 
   if (!data.carrera || !data.carrera.trim()) {
     errors.carrera = "La carrera es obligatoria.";
   } else if (!carreraPattern.test(data.carrera.trim())) {
-    errors.carrera = "La carrera solo puede contener letras y espacios (por ejemplo: Ingeniería de Software o IS).";
+    errors.carrera = "La carrera solo puede contener letras, espacios, puntos o guiones.";
   }
 
   if (!data.semestre || !data.semestre.trim()) {
@@ -118,7 +118,7 @@ export const createMember = async (req, res) => {
               "name": "nuevo",
               "email": "nuevo@ues.com",
               "password": "pass123",
-              "tipo_usuario": "Miembro Activo",
+              "tipo_usuario": "Alumno",
               "status": "",
               "datos_fisicos": "es nuevo agrega descripcion o afecciones",
             }
@@ -201,7 +201,7 @@ export const deleteMember = async (req, res) => {
 };
 
 // Update user
-export const updateMemeber = async (req, res) => {
+export const updateMember = async (req, res) => {
   /* #swagger.tags = ['Members']
       #swagger.summary = 'Actualizar datos de un miembro'
       #swagger.parameters['id'] = { description: 'ID del usuario a actualizar' }

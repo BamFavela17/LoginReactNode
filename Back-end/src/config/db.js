@@ -11,9 +11,9 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD
 })
 
-pool.on("connect", () => {
-    console.log("Connected to the database");
-})
+// pool.on("connect", () => {
+//     console.log("Connected to the database");
+// })
 
 pool.on("error", (err) => {
     console.log("Database error", err);

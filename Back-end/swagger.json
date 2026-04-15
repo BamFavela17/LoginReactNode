@@ -409,83 +409,18 @@
         }
       },
       "put": {
-        "tags": [
-          "Members"
-        ],
-        "summary": "Actualizar datos de un miembro",
         "description": "",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string",
-            "description": "ID del usuario a actualizar"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "matricula": {
-                  "type": "string",
-                  "example": ""
-                },
-                "carrera": {
-                  "type": "string",
-                  "example": ""
-                },
-                "semestre": {
-                  "type": "string",
-                  "example": ""
-                },
-                "name": {
-                  "type": "string",
-                  "example": ""
-                },
-                "email": {
-                  "type": "string",
-                  "example": ""
-                },
-                "password": {
-                  "type": "string",
-                  "example": ""
-                },
-                "tipo_usuario": {
-                  "type": "string",
-                  "example": ""
-                },
-                "status": {
-                  "type": "string",
-                  "example": ""
-                },
-                "datos_fisicos": {
-                  "type": "string",
-                  "example": ""
-                }
-              }
-            }
+            "type": "string"
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/MemberResponse"
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
           "401": {
             "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       }
@@ -532,7 +467,7 @@
                 },
                 "tipo_usuario": {
                   "type": "string",
-                  "example": "Miembro Activo"
+                  "example": "Alumno"
                 },
                 "status": {
                   "type": "string",

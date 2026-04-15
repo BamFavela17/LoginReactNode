@@ -9,7 +9,7 @@ export const Navbar = ({ user, setUser }) => {
 
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:5000/api/auth/logout");
+      await axios.post("/api/auth/logout");
     } catch (error) {
       console.error("Error durante el logout:", error);
     }

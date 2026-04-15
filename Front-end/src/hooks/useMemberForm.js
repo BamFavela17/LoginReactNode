@@ -7,7 +7,7 @@ const initialForm = {
   email: "",
   carrera: "",
   semestre: "",
-  tipo_usuario: "Miembro Activo",
+  tipo_usuario: "Alumno",
   status: "Activo",
   datos_fisicos: "",
   historial: "",
@@ -16,7 +16,7 @@ const initialForm = {
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const matriculaPattern = /^\d{8,12}$/;
-const carreraPattern = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,}$/;
+const carreraPattern = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s.\-]{2,}$/;
 
 export function useMemberForm(api, loadMembers, setMessage) {
   const [formData, setFormData] = useState(initialForm);
@@ -38,7 +38,7 @@ export function useMemberForm(api, loadMembers, setMessage) {
       name: member.name || "",
       email: member.email || "",
       carrera: member.carrera || "",
-      semestre: member.semestre || "",
+      semestre: member.semestre != null ? String(member.semestre) : "",
       tipo_usuario: member.tipo_usuario || "Miembro Activo",
       status: member.status || "Activo",
       datos_fisicos: member.datos_fisicos || "",
@@ -53,37 +53,35 @@ export function useMemberForm(api, loadMembers, setMessage) {
     const nextErrors = {};
 
     if (!formData.name.trim()) {
-      nextErrors.name = "El nombre es obligatorio.";
+      nextErrors.name = "El nombre completo es requerido para el registro.";
     }
 
     if (!formData.matricula.trim()) {
-      nextErrors.matricula = "La matrícula es obligatoria.";
+      nextErrors.matricula = "La matrícula es obligatoria para identificar al alumno.";
     } else if (!matriculaPattern.test(formData.matricula.trim())) {
-      nextErrors.matricula = "La matrícula debe tener entre 8 y 12 dígitos numéricos.";
+      nextErrors.matricula = "La matrícula debe ser una secuencia numérica de entre 8 y 12 dígitos. No incluyas letras ni espacios.";
     }
 
     if (!formData.email.trim()) {
-      nextErrors.email = "El correo electrónico es obligatorio.";
+      nextErrors.email = "El correo electrónico es indispensable para las notificaciones.";
     } else if (!emailPattern.test(formData.email.trim())) {
-      nextErrors.email = "El correo no tiene un formato válido.";
+      nextErrors.email = "El formato del correo no es válido. Ejemplo: usuario@ues.mx";
     }
 
     if (!formData.carrera.trim()) {
-      nextErrors.carrera = "La carrera es obligatoria.";
+      nextErrors.carrera = "Debes indicar la carrera técnica o profesional del miembro.";
     } else if (!carreraPattern.test(formData.carrera.trim())) {
-      nextErrors.carrera = "La carrera solo puede contener letras y espacios (por ejemplo: Ingeniería de Software o IS).";
+      nextErrors.carrera = "La carrera debe contener al menos 2 letras y solo se permiten puntos o guiones como caracteres especiales.";
     }
 
     if (!formData.semestre.trim()) {
-      nextErrors.semestre = "El semestre es obligatorio.";
+      nextErrors.semestre = "Selecciona el semestre que está cursando el alumno.";
     }
 
     if (!selectedId && !formData.password.trim()) {
-      nextErrors.password = "La contraseña es obligatoria para crear un miembro.";
-    }
-
-    if (formData.password.trim() && formData.password.length < 6) {
-      nextErrors.password = "La contraseña debe tener al menos 6 caracteres.";
+      nextErrors.password = "La contraseña es necesaria para crear la cuenta del nuevo miembro.";
+    } else if (formData.password.trim() && formData.password.length < 6) {
+      nextErrors.password = "Por seguridad, la contraseña debe tener una longitud mínima de 6 caracteres.";
     }
 
     setErrors(nextErrors);
@@ -101,7 +99,7 @@ export function useMemberForm(api, loadMembers, setMessage) {
     if (Object.keys(validationErrors).length > 0) {
       setMessage({ text: "Corrige los errores del formulario para continuar.", type: "error" });
       setSaving(false);
-      return;
+      return false;
     }
 
     const payload = {
@@ -123,7 +121,7 @@ export function useMemberForm(api, loadMembers, setMessage) {
     if (!selectedId && !payload.password) {
       setMessage({ text: "La contraseña es obligatoria para crear un miembro.", type: "error" });
       setSaving(false);
-      return;
+      return false;
     }
 
     try {
@@ -138,6 +136,7 @@ export function useMemberForm(api, loadMembers, setMessage) {
       }
       resetForm();
       loadMembers();
+      return true;
     } catch (error) {
       const serverErrors = error.response?.data?.errors;
       if (serverErrors && typeof serverErrors === "object") {
@@ -147,6 +146,7 @@ export function useMemberForm(api, loadMembers, setMessage) {
         text: error.response?.data?.message || "Error al guardar el miembro.",
         type: "error",
       });
+      return false;
     } finally {
       setSaving(false);
     }
@@ -157,7 +157,18 @@ export function useMemberForm(api, loadMembers, setMessage) {
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
-
+const semestres = [
+    "1er Semestre",
+    "2do Semestre",
+    "3er Semestre",
+    "4to Semestre",
+    "5to Semestre",
+    "6to Semestre",
+    "7mo Semestre",
+    "8vo Semestre",
+    "9no Semestre",
+    "10mo Semestre",
+  ];
   return {
     formData,
     errors,
@@ -167,5 +178,6 @@ export function useMemberForm(api, loadMembers, setMessage) {
     handleChange,
     handleSubmit,
     startEdit,
+    semestres,
   };
 }
