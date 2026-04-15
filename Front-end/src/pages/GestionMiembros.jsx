@@ -47,6 +47,11 @@ export default function GestionMiembros({ adminUser }) {
   } = useMemberForm(api, loadMembers, setMessage);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    isOpen: false,
+    id: null,
+    name: "",
+  });
 
   // Bloquear scroll cuando el modal está abierto
   useEffect(() => {
@@ -236,7 +241,13 @@ export default function GestionMiembros({ adminUser }) {
                           <Edit3 className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(member.id_user)}
+                          onClick={() =>
+                            setDeleteConfirm({
+                              isOpen: true,
+                              id: member.id_user,
+                              name: member.name,
+                            })
+                          }
                           className="p-2 bg-rose-50 rounded-xl text-rose-700 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
                           title="Eliminar"
                         >
@@ -285,7 +296,7 @@ export default function GestionMiembros({ adminUser }) {
 
               {message.text && (
                 <div
-                  className={`mb-6 rounded-2xl border p-4 text-sm font-black uppercase ${message.type === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-rose-200 bg-rose-50 text-rose-700"}`}
+                  className={`mb-6 rounded-2xl border p-4 text-sm font-black uppercase shadow-sm animate-pulse ${message.type === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-rose-200 bg-rose-50 text-rose-700"}`}
                 >
                   {message.text}
                 </div>
@@ -390,8 +401,8 @@ export default function GestionMiembros({ adminUser }) {
                         Selecciona semestre
                       </option>
                       {semestres.map((opcion, index) => (
-                        <option key={index} value={opcion}>
-                          {opcion}
+                        <option key={index} value={opcion.value}>
+                          {opcion.label}
                         </option>
                       ))}
                     </select>
@@ -414,9 +425,10 @@ export default function GestionMiembros({ adminUser }) {
                       onChange={handleChange}
                       className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-[#D4AF37]"
                     >
-                      <option value="Miembro Activo">Miembro</option>
-                      <option value="Ex-miembro">Ex-miembro</option>
-                      <option value="Alumno">Alumno</option>
+                      <option value="alumno">Alumno</option>
+                      <option value="docente">Docente</option>
+                      <option value="administrativo">Administrativo</option>
+                      <option value="externo">Externo</option>
                     </select>
                   </div>
                   <div className="flex flex-col">
@@ -429,8 +441,8 @@ export default function GestionMiembros({ adminUser }) {
                       onChange={handleChange}
                       className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-[#D4AF37]"
                     >
-                      <option value="Activo">Activo</option>
-                      <option value="Inactivo">Inactivo</option>
+                      <option value="activo">Activo</option>
+                      <option value="inactivo">Inactivo</option>
                     </select>
                   </div>
                 </div>
@@ -470,6 +482,21 @@ export default function GestionMiembros({ adminUser }) {
                     placeholder="Observaciones, lesiones o características físicas importantes"
                   />
                 </div>
+
+                <div>
+                  <label className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-bold">
+                    Historial / Notas Adicionales
+                  </label>
+                  <textarea
+                    name="historial"
+                    value={formData.historial}
+                    onChange={handleChange}
+                    rows="3"
+                    className="mt-2 w-full rounded-2xl border border-gray-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-[#D4AF37] focus:bg-white transition-all resize-none"
+                    placeholder="Registro de actividad o notas administrativas"
+                  />
+                </div>
+
                 <button
                   type="submit"
                   disabled={saving}
@@ -482,6 +509,47 @@ export default function GestionMiembros({ adminUser }) {
                       : "Registrar Miembro"}
                 </button>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL DE CONFIRMACIÓN DE ELIMINACIÓN */}
+        {deleteConfirm.isOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"
+              onClick={() => setDeleteConfirm({ ...deleteConfirm, isOpen: false })}
+            />
+            <div className="relative w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl animate-in fade-in zoom-in duration-200">
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="bg-rose-100 p-4 rounded-full text-rose-600">
+                  <Trash2 className="w-10 h-10" />
+                </div>
+                <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">
+                  ¿Confirmar eliminación?
+                </h2>
+                <p className="text-sm text-slate-500 leading-relaxed">
+                  Estás a punto de eliminar a <span className="font-bold text-slate-700">{deleteConfirm.name}</span>. 
+                  Esta acción no se puede deshacer.
+                </p>
+                <div className="flex gap-3 w-full pt-4">
+                  <button
+                    onClick={() => setDeleteConfirm({ ...deleteConfirm, isOpen: false })}
+                    className="flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-slate-100 transition-all"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await handleDelete(deleteConfirm.id);
+                      setDeleteConfirm({ isOpen: false, id: null, name: "" });
+                    }}
+                    className="flex-1 rounded-2xl bg-rose-600 px-6 py-3 text-xs font-black uppercase tracking-widest text-white hover:bg-rose-700 shadow-lg shadow-rose-900/20 transition-all"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

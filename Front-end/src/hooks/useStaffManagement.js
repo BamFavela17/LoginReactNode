@@ -86,8 +86,6 @@ export function useStaffManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("¿Eliminar este miembro del staff definitivamente?")) return;
-
     try {
       await axios.delete(`${api}/admin/${id}`);
       setMessage({ text: "Persona de staff eliminada correctamente.", type: "success" });

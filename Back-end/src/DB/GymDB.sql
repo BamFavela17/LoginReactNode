@@ -20,7 +20,7 @@ CREATE TABLE users (
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL, 
     fecha_registro DATE DEFAULT CURRENT_DATE,
-    tipo_usuario VARCHAR(50) NOT NULL CHECK (tipo_usuario IN ('Personal', 'Miembro Activo', 'Ex-miembro', 'Alumno' )),
+    tipo_usuario VARCHAR(50) NOT NULL CHECK (tipo_usuario IN ('alumno', 'docente', 'administrativo', 'externo')),
     status VARCHAR(20) DEFAULT 'activo' CHECK (status IN ('activo', 'inactivo')),
     datos_fisicos TEXT,
     historial TEXT
@@ -105,8 +105,8 @@ VALUES ('admin_juan', 'admin@gym.com', 'secure_hash', 'superadmin');
 -- Alumnos (Cumpliendo validación de matrícula de 11 dígitos)
 INSERT INTO users (matricula, carrera, semestre, name, email, password_hash, tipo_usuario, status) 
 VALUES 
-('22020220010', 'Sistemas', '6to', 'Carlos Pérez', 'carlos@u.edu', 'h1', 'Miembro Activo', 'activo'),
-('22020220020', 'Derecho', '4to', 'Ana García', 'ana@u.edu', 'h2', 'Miembro Activo', 'activo');
+('22020220010', 'Sistemas', '6', 'Carlos Pérez', 'carlos@u.edu', 'h1', 'alumno', 'activo'),
+('22020220020', 'Derecho', '4', 'Ana García', 'ana@u.edu', 'h2', 'alumno', 'activo');
 
 -- Simular una entrada
 INSERT INTO in_out (id_user, registrado_por) VALUES (1, 1);

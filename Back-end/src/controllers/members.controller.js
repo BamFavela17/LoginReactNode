@@ -3,6 +3,13 @@ import bcrypt from "bcrypt";
 
 const SALT_ROUNDS = 10;
 
+// Opciones de semestre permitidas
+const SEMESTRE_OPTIONS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+
+// Opciones de integridad para la Base de Datos
+const TIPO_USUARIO_OPTIONS = ["alumno", "docente", "administrativo", "externo"];
+const STATUS_OPTIONS = ["activo", "inactivo"];
+
 const validateMemberData = (data, isNew = true) => {
   const errors = {};
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -24,16 +31,10 @@ const validateMemberData = (data, isNew = true) => {
     errors.email = "El correo no tiene un formato válido.";
   }
 
-  const carreraPattern = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s.\-]{2,}$/;
-
-  if (!data.carrera || !data.carrera.trim()) {
-    errors.carrera = "La carrera es obligatoria.";
-  } else if (!carreraPattern.test(data.carrera.trim())) {
-    errors.carrera = "La carrera solo puede contener letras, espacios, puntos o guiones.";
-  }
-
   if (!data.semestre || !data.semestre.trim()) {
     errors.semestre = "El semestre es obligatorio.";
+  } else if (!SEMESTRE_OPTIONS.includes(data.semestre.trim())) {
+    errors.semestre = "El semestre no es válido (debe ser un valor del 1 al 12).";
   }
 
   if (isNew) {
@@ -48,10 +49,14 @@ const validateMemberData = (data, isNew = true) => {
 
   if (!data.tipo_usuario || !data.tipo_usuario.trim()) {
     errors.tipo_usuario = "El tipo de usuario es obligatorio.";
+  } else if (!TIPO_USUARIO_OPTIONS.includes(data.tipo_usuario.trim().toLowerCase())) {
+    errors.tipo_usuario = "Tipo de usuario no reconocido por el sistema.";
   }
 
   if (!data.status || !data.status.trim()) {
     errors.status = "El estado es obligatorio.";
+  } else if (!STATUS_OPTIONS.includes(data.status.trim().toLowerCase())) {
+    errors.status = "El estado debe ser Activo o Inactivo.";
   }
 
   return errors;
@@ -114,12 +119,12 @@ export const createMember = async (req, res) => {
             schema: { 
               "matricula": "11111111111",
               "carrera": "Finanzas",
-              "semestre": "2do",
+              "semestre": "2",
               "name": "nuevo",
               "email": "nuevo@ues.com",
               "password": "pass123",
-              "tipo_usuario": "Alumno",
-              "status": "",
+              "tipo_usuario": "alumno",
+              "status": "activo",
               "datos_fisicos": "es nuevo agrega descripcion o afecciones",
             }
       }
@@ -168,14 +173,14 @@ export const createMember = async (req, res) => {
     const { rows } = await pool.query(
       `INSERT INTO users (matricula, carrera, semestre, name, email, password_hash, tipo_usuario, status, datos_fisicos, historial) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-      [matricula.trim(), carrera.trim(), semestre.trim(), name.trim(), email.trim().toLowerCase(), hashed, tipo_usuario.trim(), status.trim(), datos_fisicos || "", historial || ""]
+      [matricula.trim(), carrera.trim(), semestre.trim(), name.trim(), email.trim().toLowerCase(), hashed, tipo_usuario.trim().toLowerCase(), status.trim().toLowerCase(), datos_fisicos || "", historial || ""]
     );
 
     const { password_hash, ...user } = rows[0];
     res.status(201).json(user);
   } catch (err) {
     console.error("createUser error", err);
-    res.status(400).json({ message: "Error creating user", error: err.detail || err.message });
+    res.status(400).json({ message: "No se pudo registrar al miembro", error: err.detail || err.message });
   }
 };
 
@@ -238,6 +243,14 @@ export const updateMember = async (req, res) => {
       });
     }
 
+    // Seguridad extra: Si la matrícula cambió, verificar si el usuario es superadmin
+    const currentMember = await pool.query("SELECT matricula FROM users WHERE id_user = $1", [id]);
+    if (currentMember.rows.length > 0 && currentMember.rows[0].matricula !== matricula.trim()) {
+      if (req.user.role !== 'superadmin') {
+        return res.status(403).json({ message: "No tienes permisos para modificar la matrícula." });
+      }
+    }
+
     const existingMatricula = await pool.query(
       "SELECT id_user FROM users WHERE matricula = $1 AND id_user != $2",
       [matricula.trim(), id]
@@ -261,7 +274,7 @@ export const updateMember = async (req, res) => {
     }
 
     let query = "UPDATE users SET matricula=$1, carrera=$2, semestre=$3, name=$4, email=$5, tipo_usuario=$6, status=$7, datos_fisicos=$8, historial=$9";
-    let values = [matricula.trim(), carrera.trim(), semestre.trim(), name.trim(), email.trim().toLowerCase(), tipo_usuario.trim(), status.trim(), datos_fisicos || "", historial || ""];
+    let values = [matricula.trim(), carrera.trim(), semestre.trim(), name.trim(), email.trim().toLowerCase(), tipo_usuario.trim().toLowerCase(), status.trim().toLowerCase(), datos_fisicos || "", historial || ""];
 
     if (password && password.trim()) {
       const hashed = await bcrypt.hash(password, SALT_ROUNDS);
@@ -282,6 +295,6 @@ export const updateMember = async (req, res) => {
     return res.json(user);
   } catch (err) {
     console.error("updateMember error", err);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Error al actualizar el miembro", error: err.detail || err.message });
   }
 };

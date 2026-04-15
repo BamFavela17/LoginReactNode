@@ -7,8 +7,8 @@ const initialForm = {
   email: "",
   carrera: "",
   semestre: "",
-  tipo_usuario: "Alumno",
-  status: "Activo",
+  tipo_usuario: "alumno",
+  status: "activo",
   datos_fisicos: "",
   historial: "",
   password: "",
@@ -16,7 +16,25 @@ const initialForm = {
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const matriculaPattern = /^\d{8,12}$/;
-const carreraPattern = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s.\-]{2,}$/;
+
+
+// Valores válidos para validación
+const SEMESTRE_VALUES = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+
+const semestres = [
+  { value: "1", label: "1er Semestre" },
+  { value: "2", label: "2do Semestre" },
+  { value: "3", label: "3er Semestre" },
+  { value: "4", label: "4to Semestre" },
+  { value: "5", label: "5to Semestre" },
+  { value: "6", label: "6to Semestre" },
+  { value: "7", label: "7mo Semestre" },
+  { value: "8", label: "8vo Semestre" },
+  { value: "9", label: "9no Semestre" },
+  { value: "10", label: "10mo Semestre" },
+  { value: "11", label: "11vo Semestre" },
+  { value: "12", label: "12vo Semestre" },
+];
 
 export function useMemberForm(api, loadMembers, setMessage) {
   const [formData, setFormData] = useState(initialForm);
@@ -24,10 +42,10 @@ export function useMemberForm(api, loadMembers, setMessage) {
   const [selectedId, setSelectedId] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  const resetForm = () => {
+  const resetForm = (keepMessage = false) => {
     setSelectedId(null);
     setFormData(initialForm);
-    setMessage({ text: "", type: "" });
+    if (!keepMessage) setMessage({ text: "", type: "" });
     setErrors({});
   };
 
@@ -38,9 +56,13 @@ export function useMemberForm(api, loadMembers, setMessage) {
       name: member.name || "",
       email: member.email || "",
       carrera: member.carrera || "",
-      semestre: member.semestre != null ? String(member.semestre) : "",
-      tipo_usuario: member.tipo_usuario || "Miembro Activo",
-      status: member.status || "Activo",
+      // Normalizamos el semestre: extraemos solo los números
+      // para que valores como "1er", "2do" o "6to" se conviertan en "1", "2" o "6"
+      semestre: member.semestre != null 
+        ? String(member.semestre).replace(/\D/g, "") 
+        : "",
+      tipo_usuario: member.tipo_usuario || "alumno",
+      status: member.status || "activo",
       datos_fisicos: member.datos_fisicos || "",
       historial: member.historial || "",
       password: "",
@@ -70,12 +92,12 @@ export function useMemberForm(api, loadMembers, setMessage) {
 
     if (!formData.carrera.trim()) {
       nextErrors.carrera = "Debes indicar la carrera técnica o profesional del miembro.";
-    } else if (!carreraPattern.test(formData.carrera.trim())) {
-      nextErrors.carrera = "La carrera debe contener al menos 2 letras y solo se permiten puntos o guiones como caracteres especiales.";
     }
 
     if (!formData.semestre.trim()) {
       nextErrors.semestre = "Selecciona el semestre que está cursando el alumno.";
+    } else if (!SEMESTRE_VALUES.includes(formData.semestre.trim())) {
+      nextErrors.semestre = "El valor del semestre no es válido.";
     }
 
     if (!selectedId && !formData.password.trim()) {
@@ -103,15 +125,15 @@ export function useMemberForm(api, loadMembers, setMessage) {
     }
 
     const payload = {
-      matricula: formData.matricula,
-      name: formData.name,
-      email: formData.email,
-      carrera: formData.carrera,
-      semestre: formData.semestre,
-      tipo_usuario: formData.tipo_usuario,
-      status: formData.status,
-      datos_fisicos: formData.datos_fisicos,
-      historial: formData.historial,
+      matricula: formData.matricula.trim(),
+      name: formData.name.trim(),
+      email: formData.email.trim().toLowerCase(),
+      carrera: formData.carrera.trim(),
+      semestre: formData.semestre.trim(),
+      tipo_usuario: formData.tipo_usuario.trim(),
+      status: formData.status.trim(),
+      datos_fisicos: (formData.datos_fisicos || "").trim(),
+      historial: (formData.historial || "").trim(),
     };
 
     if (formData.password) {
@@ -129,21 +151,24 @@ export function useMemberForm(api, loadMembers, setMessage) {
         const body = { ...payload };
         if (!body.password) delete body.password;
         await axios.put(`${api}/user/${selectedId}`, body);
+        resetForm(true); // Mantener el mensaje de éxito
         setMessage({ text: "Miembro actualizado con éxito.", type: "success" });
       } else {
         await axios.post(`${api}/user`, payload);
+        resetForm(true); // Mantener el mensaje de éxito
         setMessage({ text: "Miembro creado correctamente.", type: "success" });
       }
-      resetForm();
       loadMembers();
       return true;
     } catch (error) {
       const serverErrors = error.response?.data?.errors;
+      const technicalError = error.response?.data?.error; // Capturar el detalle técnico del backend
+
       if (serverErrors && typeof serverErrors === "object") {
         setErrors((prev) => ({ ...prev, ...serverErrors }));
       }
       setMessage({
-        text: error.response?.data?.message || "Error al guardar el miembro.",
+        text: technicalError ? `${error.response.data.message}: ${technicalError}` : (error.response?.data?.message || "Error al guardar el miembro."),
         type: "error",
       });
       return false;
@@ -157,18 +182,6 @@ export function useMemberForm(api, loadMembers, setMessage) {
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
-const semestres = [
-    "1er Semestre",
-    "2do Semestre",
-    "3er Semestre",
-    "4to Semestre",
-    "5to Semestre",
-    "6to Semestre",
-    "7mo Semestre",
-    "8vo Semestre",
-    "9no Semestre",
-    "10mo Semestre",
-  ];
   return {
     formData,
     errors,
